@@ -6,13 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Description:
- *
- * @author twogoods
- * @version 0.1
- * @since 2017-05-06
+ * Created by twogoods on 2017/7/28.
  */
-@Target({ ElementType.FIELD, ElementType.TYPE })
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.CLASS)
-public @interface Data {
+public @interface Table {
+    String name();
 }
