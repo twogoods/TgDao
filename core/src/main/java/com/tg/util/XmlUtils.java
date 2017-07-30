@@ -19,14 +19,11 @@ public class XmlUtils {
     public static Element generateMybatisXmlFrame(String daoName) throws SAXException, DocumentException {
         String frame = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
                 "\n" +
-                "<!DOCTYPE mapper\n" +
-                "PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">\n" +
+                "<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">\n" +
                 "\n" +
                 "<mapper namespace=\"" + daoName + "\">\n" +
                 "</mapper>\n";
-
-
-        Document document = XmlUtils.parseText(frame);
+        Document document = parseText(frame);
         Element rootElement = document.getRootElement();
         return rootElement;
     }
@@ -39,12 +36,11 @@ public class XmlUtils {
         String encoding = getEncoding(text);
 
         InputSource source = new InputSource(new StringReader(text));
-        source.setEncoding(encoding);
+//        source.setEncoding(encoding);
         Document result = reader.read(source);
-
-        if (result.getXMLEncoding() == null) {
-            result.setXMLEncoding(encoding);
-        }
+//        if (result.getXMLEncoding() == null) {
+//            result.setXMLEncoding(encoding);
+//        }
         return result;
     }
 
@@ -62,7 +58,6 @@ public class XmlUtils {
                     if (tokens.hasMoreTokens()) {
                         result = tokens.nextToken();
                     }
-
                     break;
                 }
             }

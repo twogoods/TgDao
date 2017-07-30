@@ -1,6 +1,7 @@
 package com.tg.dao.test;
 
 import com.tg.annotation.Column;
+import com.tg.annotation.Id;
 import com.tg.annotation.Table;
 
 /**
@@ -9,12 +10,13 @@ import com.tg.annotation.Table;
 
 @Table(name = "user")
 public class User {
+    @Id
     private int id;
 
     private String name;
 
     private int age;
-    
+
     @Column("now_address")
     private String address;
 
