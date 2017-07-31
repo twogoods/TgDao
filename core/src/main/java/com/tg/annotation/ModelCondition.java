@@ -9,14 +9,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by twogoods on 2017/7/28.
+ * Created by twogoods on 2017/7/31.
  */
-@Target({ElementType.PARAMETER})
+@Target({ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.CLASS)
-public @interface Condition {
-    Criterions value() default Criterions.EQUAL;
+public @interface ModelCondition {
+    Criterions criterion() default Criterions.EQUAL;
 
-    String column() default "";
+    String field();
 
     Attach attach() default Attach.AND;
 }

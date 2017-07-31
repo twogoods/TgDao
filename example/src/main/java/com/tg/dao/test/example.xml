@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.we.ws.admin.mapper.FlowMapper">
+
+    <select id="listFlows" resultType="com.we.ws.admin.domain.Flow">
+        select autoid,flowid,flowname,description,input,state from T_Flow
+        <where>
+            state != 2
+            <if test="flowid != null and flowid!=''">
+                and flowid = #{flowid}
+            </if>
+            <if test="flowname != null and flowname!=''">
+                and flowname like #{flowname}
+            </if>
+            <if test="uid !='1'">
+                and uid like #{uid}
+            </if>
+            <if test="ids !=null and ids.size() &gt; 0">`id` in
+                <foreach item="id" collection="ids" open="(" separator="," close=")">#{id}</foreach>
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertSelective" parameterType="me.ele.security.webadmin.entity.AssetDomain">
+        insert into security_asset_domain
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="ip != null">
+                ip,
+            </if>
+            <if test="domain != null">
+                domain,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="ip != null">
+                #{ip},
+            </if>
+            <if test="domain != null">
+                #{domain},
+            </if>
+        </trim>
+        <selectKey keyProperty="id" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+
+    <update id="updateSelective" parameterType="map">
+        update security_asset_domain
+        <set>
+            <if test="record.id != null">
+                id = #{record.id},
+            </if>
+            <if test="record.ip != null">
+                ip = #{record.ip},
+            </if>
+        </set>
+
+        <where>
+            state != 2
+            <if test="flowid != null and flowid!=''">
+                and flowid = #{flowid}
+            </if>
+            <if test="flowname != null and flowname!=''">
+                and flowname like #{flowname}
+            </if>
+            <if test="uid !='1'">
+                and uid like #{uid}
+            </if>
+        </where>
+    </update>
+
+</mapper>

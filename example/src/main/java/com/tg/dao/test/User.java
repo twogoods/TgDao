@@ -10,7 +10,7 @@ import com.tg.annotation.Table;
 
 @Table(name = "user")
 public class User {
-    @Id
+    @Id("id")
     private int id;
 
     private String name;

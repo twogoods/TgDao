@@ -1,6 +1,5 @@
-package com.tg.compile;
+package com.tg.generator.model;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -10,7 +9,8 @@ import java.util.Map;
 public class TableMapping {
     private String tableName;
     private String className;
-    private List<String> columns;
+    private String idColumn;
+    private String idField;
     private Map<String, String> fieldToColumn;
     private Map<String, String> columnToField;
 
@@ -22,12 +22,20 @@ public class TableMapping {
         this.tableName = tableName;
     }
 
-    public List<String> getColumns() {
-        return columns;
+    public String getIdColumn() {
+        return idColumn;
     }
 
-    public void setColumns(List<String> columns) {
-        this.columns = columns;
+    public void setIdColumn(String idColumn) {
+        this.idColumn = idColumn;
+    }
+
+    public String getIdField() {
+        return idField;
+    }
+
+    public void setIdField(String idField) {
+        this.idField = idField;
     }
 
     public String getClassName() {
