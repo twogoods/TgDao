@@ -8,6 +8,7 @@ import com.tg.constant.Attach;
 import com.tg.constant.Criterions;
 import com.tg.util.StringUtils;
 import org.dom4j.Element;
+
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import java.util.List;
@@ -17,13 +18,11 @@ import java.util.List;
  */
 public abstract class SqlGen {
     protected ExecutableElement executableElement;
-    protected Element root;
     protected TableMapping tableInfo;
     protected List<? extends VariableElement> variableElements;
 
-    public SqlGen(ExecutableElement executableElement, Element root, TableMapping tableInfo) {
+    public SqlGen(ExecutableElement executableElement, TableMapping tableInfo) {
         this.executableElement = executableElement;
-        this.root = root;
         this.tableInfo = tableInfo;
         variableElements = executableElement.getParameters();
     }
@@ -95,37 +94,16 @@ public abstract class SqlGen {
         each.addText("#{item}");
     }
 
-    private void generateFirstParam(VariableElement variableElement, StringBuilder sqlBuilder) {
-        String varName = variableElement.getSimpleName().toString();
-        Condition condition = variableElement.getAnnotation(Condition.class);
-        if (condition == null) {
-            sqlBuilder.append(varName).append(" = ").append("#{").append(0).append("} ");
-            return;
-        }
-        Attach attach = condition.attach();
-        String column = condition.column();
-        Criterions criterion = condition.value();
-        sqlBuilder.append(attach.name())
-                .append(StringUtils.BLANK)
-                .append(StringUtils.isEmpty(column) ? varName : column)
-                .append(StringUtils.BLANK);
-        if (criterion == Criterions.IN || criterion == Criterions.NOT_IN) {
-            sqlBuilder.append(criterion.getCriterion());
-        } else {
-            sqlBuilder.append(criterion.getCriterion()).append(" #{").append(0).append("} ");
-        }
-    }
-
     protected boolean isPageParam(VariableElement variableElement) {
         boolean flag = variableElement.getAnnotation(Limit.class) != null || variableElement.getAnnotation(OffSet.class) != null;
         return flag;
     }
 
-    public Element generateTrimElement(Element element) {
+    public Element generateTrimElement(Element element, String prefix, String suffix, String suffixOverrides) {
         Element trimElement = element.addElement("trim")
-                .addAttribute("prefix", "(")
-                .addAttribute("suffix", ")")
-                .addAttribute("suffixOverrides", ",");
+                .addAttribute("prefix", prefix)
+                .addAttribute("suffix", suffix)
+                .addAttribute("suffixOverrides", suffixOverrides);
         return trimElement;
     }
 }

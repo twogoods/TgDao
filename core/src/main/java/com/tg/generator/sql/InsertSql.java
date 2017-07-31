@@ -13,8 +13,8 @@ import javax.lang.model.element.ExecutableElement;
 public class InsertSql extends SqlGen {
     private Insert insert;
 
-    public InsertSql(ExecutableElement executableElement, Element root, TableMapping tableInfo, Insert insert) {
-        super(executableElement, root, tableInfo);
+    public InsertSql(ExecutableElement executableElement, TableMapping tableInfo, Insert insert) {
+        super(executableElement, tableInfo);
         this.insert = insert;
     }
 
@@ -29,8 +29,9 @@ public class InsertSql extends SqlGen {
         }
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("insert into ").append(tableInfo.getTableName()).append(StringUtils.BLANK);
-        Element columnElement = generateTrimElement(root);
-        Element valuesElement = generateTrimElement(root);
+        selectElement.addText(sqlBuilder.toString());
+        Element columnElement = generateTrimElement(selectElement, "(", ")", ",");
+        Element valuesElement = generateTrimElement(selectElement, "values (", ")", ",");
         tableInfo.getFieldToColumn().forEach((key, value) -> {
             columnElement.addElement("if")
                     .addAttribute("test", key + " != null")
@@ -40,7 +41,6 @@ public class InsertSql extends SqlGen {
                     .addText("#{" + key + "},");
 
         });
-        selectElement.addText(sqlBuilder.toString());
         return null;
     }
 

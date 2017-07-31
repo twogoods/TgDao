@@ -3,15 +3,10 @@ package com.tg.processor;
 import com.sun.tools.javac.code.Symbol;
 import com.tg.annotation.*;
 import com.tg.generator.model.TableMapping;
-import com.tg.generator.sql.SelectCountSql;
-import com.tg.generator.sql.SelectSql;
+import com.tg.generator.sql.*;
 import com.tg.util.StringUtils;
-import com.tg.util.XmlUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
@@ -53,23 +48,17 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        //annotations的值是通过@SupportedAnnotationTypes声明的且目标源代码拥有的所有Annotations
-        Messager messager = processingEnv.getMessager();
         annotations.stream()
                 .filter(typeElement -> typeElement.toString().equals(TABLEANNOTATIONNAME))
-                .forEach(typeElement -> {
-                    roundEnv.getElementsAnnotatedWith(typeElement).forEach((this::handleTableElement));
-                });
+                .forEach(typeElement -> roundEnv.getElementsAnnotatedWith(typeElement).forEach((this::handleTableElement)));
 
         annotations.stream()
                 .filter(typeElement -> typeElement.toString().equals(DAOGENANNOTATIONNAME))
-                .forEach(typeElement -> {
-                    roundEnv.getElementsAnnotatedWith(typeElement).forEach((this::handleDaoGenElement));
-                });
+                .forEach(typeElement -> roundEnv.getElementsAnnotatedWith(typeElement).forEach((this::handleDaoGenElement)));
         return true;
     }
 
-    public void handleTableElement(Element element) {
+    private void handleTableElement(Element element) {
         //TODO TableMapping 里的属性 空值检查
         Symbol.ClassSymbol classSymbol = (Symbol.ClassSymbol) element;
         TableMapping tableMapping = new TableMapping();
@@ -100,26 +89,27 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
         nameModelMapping.put(tableMapping.getClassName(), tableMapping);
     }
 
-    public String parseColumnAnnotation(Element element) {
+    private String parseColumnAnnotation(Element element) {
         Column column = element.getAnnotation(Column.class);
         return column == null ? null : column.value();
     }
 
-    public void handleDaoGenElement(Element element) {
+    private void handleDaoGenElement(Element element) {
         //TODO 编译的warning提示
         if (!(element.getKind() == ElementKind.INTERFACE)) return;
         String modelClass = getAnnotatedClassForDaoGen(element);
         Symbol.ClassSymbol classSymbol = (Symbol.ClassSymbol) element;
-        String daoName = classSymbol.getQualifiedName().toString();
-        List<? extends ExecutableElement> executableElements = ElementFilter.methodsIn(element.getEnclosedElements());
-        try {
-            org.dom4j.Element rootElement = XmlUtils.generateMybatisXmlFrame(daoName);
-            for (ExecutableElement executableElement : executableElements) {
-                handleExecutableElement(executableElement, rootElement, modelClass);
+        List<SqlGen> sqlGens = new ArrayList<>();
+        ElementFilter.methodsIn(element.getEnclosedElements()).forEach(executableElement -> {
+            SqlGen sqlGen = handleExecutableElement(executableElement, modelClass);
+            if (sqlGen != null) {
+                sqlGens.add(sqlGen);
             }
-            XmlUtils.writeFile(classSymbol.getSimpleName().toString(), daoName.substring(0, daoName.lastIndexOf(".")).replace(".", "/"), rootElement.getDocument());
+        });
+        try {
+            GenerateHelper.generate(classSymbol.getQualifiedName().toString(), sqlGens);
         } catch (Exception e) {
-            throw new Error(e);
+            //TODO 错误
         }
     }
 
@@ -136,28 +126,32 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
         return typeMirror.toString();
     }
 
-    public void handleExecutableElement(ExecutableElement executableElement, org.dom4j.Element root, String modelClass) {
+    public SqlGen handleExecutableElement(ExecutableElement executableElement, String modelClass) {
         Select select = executableElement.getAnnotation(Select.class);
         if (select != null) {
-            new SelectSql(executableElement, root, nameModelMapping.get(modelClass), select).generateSql(root);
-            return;
+            return new SelectSql(executableElement, nameModelMapping.get(modelClass), select);
         }
         Count count = executableElement.getAnnotation(Count.class);
         if (count != null) {
-            new SelectCountSql(executableElement, root, nameModelMapping.get(modelClass), count).generateSql(root);
-            return;
+            return new SelectCountSql(executableElement, nameModelMapping.get(modelClass), count);
         }
         Insert insert = executableElement.getAnnotation(Insert.class);
         if (insert != null) {
-            return;
+            return new InsertSql(executableElement, nameModelMapping.get(modelClass), insert);
+        }
+        BatchInsert batchInsert = executableElement.getAnnotation(BatchInsert.class);
+        if (batchInsert != null) {
+            return new BatchInsertSql(executableElement, nameModelMapping.get(modelClass), batchInsert);
         }
         Update update = executableElement.getAnnotation(Update.class);
         if (update != null) {
-            return;
+            return null;
         }
         Delete delete = executableElement.getAnnotation(Delete.class);
         if (delete != null) {
+            return null;
         }
+        return null;
     }
 
     @Override

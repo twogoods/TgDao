@@ -13,13 +13,13 @@ import javax.lang.model.element.ExecutableElement;
 public class SelectCountSql extends SelectSql {
     private Count count;
 
-    public SelectCountSql(ExecutableElement executableElement, Element root, TableMapping tableInfo, Count count) {
-        super(executableElement, root, tableInfo, null);
+    public SelectCountSql(ExecutableElement executableElement, TableMapping tableInfo, Count count) {
+        super(executableElement, tableInfo, null);
         this.count = count;
     }
 
     @Override
-    public Element generateBaseSql(Element root) {
+    protected Element generateBaseSql(Element root) {
         Element selectElement = root.addElement("select");
         selectElement.addAttribute("id", executableElement.getSimpleName().toString());
         selectElement.addAttribute("resultType", executableElement.getReturnType().getKind().toString());

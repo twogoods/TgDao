@@ -7,6 +7,7 @@ import com.tg.annotation.Select;
 import com.tg.generator.model.TableMapping;
 import com.tg.util.StringUtils;
 import org.dom4j.Element;
+
 import javax.lang.model.element.ExecutableElement;
 
 /**
@@ -15,13 +16,13 @@ import javax.lang.model.element.ExecutableElement;
 public class SelectSql extends SqlGen {
     private Select select;
 
-    public SelectSql(ExecutableElement executableElement, Element root, TableMapping tableInfo, Select select) {
-        super(executableElement, root, tableInfo);
+    public SelectSql(ExecutableElement executableElement, TableMapping tableInfo, Select select) {
+        super(executableElement, tableInfo);
         this.select = select;
     }
 
     @Override
-    public Element generateBaseSql(Element root) {
+    protected Element generateBaseSql(Element root) {
         Element selectElement = root.addElement("select");
         selectElement.addAttribute("id", executableElement.getSimpleName().toString());
         //TODO 无paramType
@@ -39,7 +40,7 @@ public class SelectSql extends SqlGen {
     }
 
     @Override
-    public void generateWhereSql(Element sqlElement) {
+    protected void generateWhereSql(Element sqlElement) {
         if (variableElements.size() == 0) {
             return;
         }
