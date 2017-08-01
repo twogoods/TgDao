@@ -109,6 +109,7 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
         try {
             GenerateHelper.generate(classSymbol.getQualifiedName().toString(), sqlGens);
         } catch (Exception e) {
+            e.printStackTrace();
             //TODO 错误
         }
     }
@@ -145,11 +146,11 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
         }
         Update update = executableElement.getAnnotation(Update.class);
         if (update != null) {
-            return null;
+            return new UpdateSql(executableElement, nameModelMapping.get(modelClass), update);
         }
         Delete delete = executableElement.getAnnotation(Delete.class);
         if (delete != null) {
-            return null;
+            return new DeleteSql(executableElement, nameModelMapping.get(modelClass), delete);
         }
         return null;
     }

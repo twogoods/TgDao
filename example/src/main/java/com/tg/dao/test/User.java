@@ -8,7 +8,7 @@ import com.tg.annotation.Table;
  * Created by twogoods on 2017/7/28.
  */
 
-@Table(name = "user")
+@Table(name = "T_User")
 public class User {
     @Id("id")
     private int id;

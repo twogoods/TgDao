@@ -46,4 +46,19 @@ public interface UserDao {
 
     @BatchInsert(columns = "name,age,now_address")
     int batchInsert(List<User> users);
+
+    @Update
+    @ModelConditions({
+            @ModelCondition(field = "id", criterion = Criterions.EQUAL)
+    })
+    int update(User user);
+
+    @Update
+    int update2(User user,
+                @Condition(column = "id", value = Criterions.IN) int[] ids);
+
+    @Delete
+    int delete(@Condition(value = Criterions.GREATER, column = "score") int score,
+               @Condition(value = Criterions.LESS, column = "score") int max);
+
 }

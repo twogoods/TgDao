@@ -43,6 +43,11 @@ public class GenerateHelper {
 
     private static void writeFile(String fileName, String relativePath, Document document) throws IOException {
         OutputFormat format = OutputFormat.createPrettyPrint();
+        format.setIndent(true);
+        format.setNewlines(true);
+        format.setNewLineAfterDeclaration(true);
+        format.setTrimText(true);
+        format.setPadText(true);
         File dir = new File(GenerateHelper.class.getResource("/").getPath() + relativePath.replace(".", "/"));
         if (!dir.exists()) {
             dir.mkdirs();

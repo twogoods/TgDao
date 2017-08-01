@@ -49,6 +49,7 @@ public class BatchInsertSql extends SqlGen {
         return null;
     }
 
+
     private void generateEach(Element sqlElement, String columns, String varName) {
         Element each = sqlElement.addElement("foreach");
         each.addAttribute("collection", varName);
@@ -64,12 +65,12 @@ public class BatchInsertSql extends SqlGen {
     }
 
     @Override
-    protected void generateWhereSql(Element sqlElement) {
+    protected void generateOrderAndPage(Element sqlElement) {
 
     }
 
     @Override
-    protected void generateOrderAndPage(Element sqlElement) {
+    protected void generateWhereSql(Element sqlElement) {
 
     }
 }

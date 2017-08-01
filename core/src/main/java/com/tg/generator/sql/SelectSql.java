@@ -40,39 +40,12 @@ public class SelectSql extends SqlGen {
     }
 
     @Override
-    protected void generateWhereSql(Element sqlElement) {
-        if (variableElements.size() == 0) {
-            return;
-        }
-        Element whereElement = sqlElement.addElement("where");
-        for (int i = 0; i < variableElements.size(); i++) {
-            generateWhereParams(variableElements.get(i), whereElement, i);
-        }
+    protected void generateOrderAndPage(Element sqlElement) {
+        commonWhereSql(sqlElement);
     }
 
     @Override
-    protected void generateOrderAndPage(Element sqlElement) {
-        OrderBy orderBy = executableElement.getAnnotation(OrderBy.class);
-        if (orderBy != null) {
-            sqlElement.addText(" order by " + orderBy.value());
-        }
-        Limit limit = null;
-        int limitIndex = 0;
-        OffSet offSet = null;
-        int offsetIndex = 0;
-        for (int i = 0; i < variableElements.size(); i++) {
-            if (limit == null && (limit = variableElements.get(i).getAnnotation(Limit.class)) != null) {
-                limitIndex = i;
-                continue;
-            }
-            if (offSet == null && (offSet = variableElements.get(i).getAnnotation(OffSet.class)) != null) {
-                offsetIndex = i;
-            }
-        }
-        if (limit != null && offSet != null) {
-            sqlElement.addText(" limit #{" + offsetIndex + "}, #{" + limitIndex + "}");
-        } else if (limit != null) {
-            sqlElement.addText(" limit #{" + limitIndex + "}");
-        }
+    protected void generateWhereSql(Element sqlElement) {
+        commonOrderAndPage(sqlElement);
     }
 }

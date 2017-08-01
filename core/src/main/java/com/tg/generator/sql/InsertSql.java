@@ -45,12 +45,12 @@ public class InsertSql extends SqlGen {
     }
 
     @Override
-    protected void generateWhereSql(Element sqlElement) {
+    protected void generateOrderAndPage(Element sqlElement) {
 
     }
 
     @Override
-    protected void generateOrderAndPage(Element sqlElement) {
+    protected void generateWhereSql(Element sqlElement) {
 
     }
 }

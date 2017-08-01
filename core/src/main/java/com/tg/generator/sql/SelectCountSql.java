@@ -29,8 +29,4 @@ public class SelectCountSql extends SelectSql {
         selectElement.addText(sqlBuilder.toString());
         return selectElement;
     }
-
-    @Override
-    protected void generateOrderAndPage(Element sqlElement) {
-    }
 }

@@ -14,4 +14,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 public @interface Update {
     SqlMode sqlMode() default SqlMode.common;
+
+    String[] columns() default {};
 }
