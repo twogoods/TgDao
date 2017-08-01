@@ -2,6 +2,7 @@ package com.tg.dao.test;
 
 import com.tg.annotation.Column;
 import com.tg.annotation.Id;
+import com.tg.annotation.Ignore;
 import com.tg.annotation.Table;
 
 /**
@@ -19,5 +20,8 @@ public class User {
 
     @Column("now_address")
     private String address;
+
+    @Ignore
+    private String test;
 
 }

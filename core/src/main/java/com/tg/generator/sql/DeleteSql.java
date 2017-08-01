@@ -18,6 +18,11 @@ public class DeleteSql extends SqlGen {
     }
 
     @Override
+    protected void checkAnnotatedRule() {
+
+    }
+
+    @Override
     protected Element generateBaseSql(Element root) {
         Element deleteElement = root.addElement("delete");
         deleteElement.addAttribute("id", executableElement.getSimpleName().toString());
@@ -27,11 +32,10 @@ public class DeleteSql extends SqlGen {
 
     @Override
     protected void generateOrderAndPage(Element sqlElement) {
-        commonWhereSql(sqlElement);
     }
 
     @Override
     protected void generateWhereSql(Element sqlElement) {
-
+        commonWhereSql(sqlElement);
     }
 }

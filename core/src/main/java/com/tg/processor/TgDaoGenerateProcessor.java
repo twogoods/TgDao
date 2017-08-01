@@ -2,6 +2,7 @@ package com.tg.processor;
 
 import com.sun.tools.javac.code.Symbol;
 import com.tg.annotation.*;
+import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
 import com.tg.generator.sql.*;
 import com.tg.util.StringUtils;
@@ -59,7 +60,6 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
     }
 
     private void handleTableElement(Element element) {
-        //TODO TableMapping 里的属性 空值检查
         Symbol.ClassSymbol classSymbol = (Symbol.ClassSymbol) element;
         TableMapping tableMapping = new TableMapping();
         tableMapping.setClassName(classSymbol.getQualifiedName().toString());
@@ -96,7 +96,9 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
 
     private void handleDaoGenElement(Element element) {
         //TODO 编译的warning提示
-        if (!(element.getKind() == ElementKind.INTERFACE)) return;
+        if (!(element.getKind() == ElementKind.INTERFACE)) {
+            throw new TgDaoException("@DaoGen only annotated Interface");
+        }
         String modelClass = getAnnotatedClassForDaoGen(element);
         Symbol.ClassSymbol classSymbol = (Symbol.ClassSymbol) element;
         List<SqlGen> sqlGens = new ArrayList<>();
@@ -109,8 +111,7 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
         try {
             GenerateHelper.generate(classSymbol.getQualifiedName().toString(), sqlGens);
         } catch (Exception e) {
-            e.printStackTrace();
-            //TODO 错误
+            throw new TgDaoException(e);
         }
     }
 

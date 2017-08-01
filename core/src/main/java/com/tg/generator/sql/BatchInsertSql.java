@@ -1,13 +1,14 @@
 package com.tg.generator.sql;
 
 import com.tg.annotation.BatchInsert;
-import com.tg.annotation.Insert;
-import com.tg.constant.Criterions;
+import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
 import com.tg.util.StringUtils;
 import org.dom4j.Element;
-
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 
 /**
  * Created by twogoods on 2017/7/31.
@@ -18,6 +19,17 @@ public class BatchInsertSql extends SqlGen {
     public BatchInsertSql(ExecutableElement executableElement, TableMapping tableInfo, BatchInsert batchInsert) {
         super(executableElement, tableInfo);
         this.batchInsert = batchInsert;
+    }
+
+    @Override
+    protected void checkAnnotatedRule() {
+        if (executableElement.getParameters().size() != 1) {
+            throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
+        }
+        //TODO 类型不好检查
+        VariableElement var = executableElement.getParameters().get(0);
+        TypeMirror type = var.asType();
+        TypeKind typeKind = type.getKind();
     }
 
     @Override

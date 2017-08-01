@@ -29,16 +29,19 @@ public abstract class SqlGen {
     }
 
     public void generateSql(Element root) {
+        checkAnnotatedRule();
         Element sqlElement = generateBaseSql(root);
         generateWhereSql(sqlElement);
         generateOrderAndPage(sqlElement);
     }
 
+    protected abstract void checkAnnotatedRule();
+
     protected abstract Element generateBaseSql(Element root);
 
-    protected abstract void generateOrderAndPage(Element sqlElement);
-
     protected abstract void generateWhereSql(Element sqlElement);
+
+    protected abstract void generateOrderAndPage(Element sqlElement);
 
     protected void commonWhereSql(Element sqlElement) {
         if (variableElements.size() == 0) {

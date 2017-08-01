@@ -1,6 +1,7 @@
 package com.tg.generator.sql;
 
 import com.tg.annotation.Update;
+import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
 import org.dom4j.Element;
 
@@ -15,6 +16,13 @@ public class UpdateSql extends SqlGen {
     public UpdateSql(ExecutableElement executableElement, TableMapping tableInfo, Update update) {
         super(executableElement, tableInfo);
         this.update = update;
+    }
+
+    @Override
+    protected void checkAnnotatedRule() {
+        if (executableElement.getParameters().size() != 1) {
+            throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
+        }
     }
 
     @Override

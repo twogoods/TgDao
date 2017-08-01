@@ -53,8 +53,12 @@ public interface UserDao {
     })
     int update(User user);
 
-    @Update
+    //不好支持
     int update2(User user,
+                @Condition(column = "id", value = Criterions.IN) int[] ids);
+
+    //不好支持
+    int update3(int state,
                 @Condition(column = "id", value = Criterions.IN) int[] ids);
 
     @Delete
