@@ -23,4 +23,11 @@ public enum Criterions {
     public String getCriterion() {
         return criterion;
     }
+
+    public boolean inCriterion() {
+        if ("in".equals(criterion) || "not in".equals(criterion)) {
+            return true;
+        }
+        return false;
+    }
 }

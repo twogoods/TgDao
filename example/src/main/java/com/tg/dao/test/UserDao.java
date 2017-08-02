@@ -3,7 +3,6 @@ package com.tg.dao.test;
 import com.tg.annotation.*;
 import com.tg.constant.Attach;
 import com.tg.constant.Criterions;
-import lombok.experimental.FieldDefaults;
 
 import java.util.Collection;
 import java.util.List;
@@ -29,7 +28,9 @@ public interface UserDao {
     @Select
     List<User> queryUser4(@Condition(value = Criterions.IN) Collection id);
 
+    //TODO 分页
     @Select
+    @Page
     @ModelConditions({
             @ModelCondition(attach = Attach.AND, field = "name", criterion = Criterions.EQUAL),
             @ModelCondition(attach = Attach.AND, field = "age", criterion = Criterions.EQUAL)
@@ -40,6 +41,12 @@ public interface UserDao {
     @Count
     int count(@Condition(value = Criterions.EQUAL, column = "name") String name,
               @Condition(value = Criterions.GREATER, attach = Attach.OR) int age);
+
+    @Count
+    @ModelConditions({
+            @ModelCondition(attach = Attach.AND, field = "age", criterion = Criterions.GREATER)
+    })
+    int count2(User user);
 
     @Insert(useGeneratedKeys = true, keyProperty = "id")
     int insert(User user);

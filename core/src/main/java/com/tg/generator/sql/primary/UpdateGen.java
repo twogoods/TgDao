@@ -1,4 +1,4 @@
-package com.tg.generator.sql;
+package com.tg.generator.sql.primary;
 
 import com.tg.annotation.Update;
 import com.tg.exception.TgDaoException;
@@ -10,10 +10,10 @@ import javax.lang.model.element.ExecutableElement;
 /**
  * Created by twogoods on 2017/8/1.
  */
-public class UpdateSql extends SqlGen {
+public class UpdateGen extends PrimarySqlGen {
     private Update update;
 
-    public UpdateSql(ExecutableElement executableElement, TableMapping tableInfo, Update update) {
+    public UpdateGen(ExecutableElement executableElement, TableMapping tableInfo, Update update) {
         super(executableElement, tableInfo);
         this.update = update;
     }
@@ -32,18 +32,9 @@ public class UpdateSql extends SqlGen {
         updateElement.addText("update " + tableInfo.getTableName());
         return updateElement;
     }
-    
+
     private void generateSet(Element updateElement) {
+        //TODO
         Element setElement = updateElement.addElement("set");
-    }
-
-    @Override
-    protected void generateOrderAndPage(Element sqlElement) {
-
-    }
-
-    @Override
-    protected void generateWhereSql(Element sqlElement) {
-
     }
 }

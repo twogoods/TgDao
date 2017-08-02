@@ -1,4 +1,4 @@
-package com.tg.generator.sql;
+package com.tg.generator.sql.primary;
 
 import com.tg.annotation.Count;
 import com.tg.generator.model.TableMapping;
@@ -10,10 +10,10 @@ import javax.lang.model.element.ExecutableElement;
 /**
  * Created by twogoods on 2017/7/31.
  */
-public class SelectCountSql extends SelectSql {
+public class CountGen extends SelectGen {
     private Count count;
 
-    public SelectCountSql(ExecutableElement executableElement, TableMapping tableInfo, Count count) {
+    public CountGen(ExecutableElement executableElement, TableMapping tableInfo, Count count) {
         super(executableElement, tableInfo, null);
         this.count = count;
     }

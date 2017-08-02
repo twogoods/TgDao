@@ -1,10 +1,11 @@
-package com.tg.generator.sql;
+package com.tg.generator.sql.primary;
 
 import com.tg.annotation.BatchInsert;
 import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
 import com.tg.util.StringUtils;
 import org.dom4j.Element;
+
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
@@ -13,10 +14,10 @@ import javax.lang.model.type.TypeMirror;
 /**
  * Created by twogoods on 2017/7/31.
  */
-public class BatchInsertSql extends SqlGen {
+public class BatchInsertGen extends PrimarySqlGen {
     private BatchInsert batchInsert;
 
-    public BatchInsertSql(ExecutableElement executableElement, TableMapping tableInfo, BatchInsert batchInsert) {
+    public BatchInsertGen(ExecutableElement executableElement, TableMapping tableInfo, BatchInsert batchInsert) {
         super(executableElement, tableInfo);
         this.batchInsert = batchInsert;
     }
@@ -59,30 +60,5 @@ public class BatchInsertSql extends SqlGen {
             generateEach(insertElement, columns, variableElements.get(0).getSimpleName().toString());
         }
         return null;
-    }
-
-
-    private void generateEach(Element sqlElement, String columns, String varName) {
-        Element each = sqlElement.addElement("foreach");
-        each.addAttribute("collection", varName);
-        each.addAttribute("item", "item");
-        each.addAttribute("separator", ",");
-        StringBuilder eachSql = new StringBuilder().append("(");
-        String[] columnArray = columns.split(",");
-        for (String column : columnArray) {
-            eachSql.append("#{item.").append(tableInfo.getColumnToField().get(column)).append("},");
-        }
-        eachSql.deleteCharAt(eachSql.lastIndexOf(",")).append(")");
-        each.addText(eachSql.toString());
-    }
-
-    @Override
-    protected void generateOrderAndPage(Element sqlElement) {
-
-    }
-
-    @Override
-    protected void generateWhereSql(Element sqlElement) {
-
     }
 }

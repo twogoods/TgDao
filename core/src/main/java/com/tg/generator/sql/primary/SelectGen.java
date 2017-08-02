@@ -1,8 +1,13 @@
-package com.tg.generator.sql;
+package com.tg.generator.sql.primary;
 
-import com.tg.annotation.*;
+import com.tg.annotation.ModelConditions;
+import com.tg.annotation.Select;
 import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
+import com.tg.generator.sql.suffix.ModelSuffixGen;
+import com.tg.generator.sql.suffix.ParamSuffixGen;
+import com.tg.generator.sql.where.FlatParamWhereSqlGen;
+import com.tg.generator.sql.where.ModelWhereSqlGen;
 import com.tg.util.StringUtils;
 import org.dom4j.Element;
 
@@ -11,24 +16,27 @@ import javax.lang.model.element.ExecutableElement;
 /**
  * Created by twogoods on 2017/7/31.
  */
-public class SelectSql extends SqlGen {
+public class SelectGen extends PrimarySqlGen {
     private Select select;
-    private ModelConditions modelConditions;
 
-
-    public SelectSql(ExecutableElement executableElement, TableMapping tableInfo, Select select) {
+    public SelectGen(ExecutableElement executableElement, TableMapping tableInfo, Select select) {
         super(executableElement, tableInfo);
         this.select = select;
-        modelConditions = executableElement.getAnnotation(ModelConditions.class);
     }
 
     @Override
     protected void checkAnnotatedRule() {
+        ModelConditions modelConditions = executableElement.getAnnotation(ModelConditions.class);
         if (modelConditions != null) {
             if (executableElement.getParameters().size() != 1) {
                 throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
             }
+            setWhereSqlGen(new ModelWhereSqlGen(executableElement, tableInfo, modelConditions));
+            setSuffixSqlGen(new ModelSuffixGen(executableElement, tableInfo));
+            return;
         }
+        setWhereSqlGen(new FlatParamWhereSqlGen(executableElement, tableInfo));
+        setSuffixSqlGen(new ParamSuffixGen(executableElement, tableInfo));
     }
 
     @Override
@@ -47,16 +55,5 @@ public class SelectSql extends SqlGen {
         sqlBuilder.append(tableInfo.getTableName()).append(StringUtils.BLANK);
         selectElement.addText(sqlBuilder.toString());
         return selectElement;
-    }
-
-
-    @Override
-    protected void generateWhereSql(Element sqlElement) {
-        commonWhereSql(sqlElement);
-    }
-
-    @Override
-    protected void generateOrderAndPage(Element sqlElement) {
-        commonOrderAndPage(sqlElement);
     }
 }

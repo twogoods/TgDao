@@ -5,6 +5,7 @@ import com.tg.annotation.*;
 import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
 import com.tg.generator.sql.*;
+import com.tg.generator.sql.primary.*;
 import com.tg.util.StringUtils;
 
 import java.util.*;
@@ -101,9 +102,9 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
         }
         String modelClass = getAnnotatedClassForDaoGen(element);
         Symbol.ClassSymbol classSymbol = (Symbol.ClassSymbol) element;
-        List<SqlGen> sqlGens = new ArrayList<>();
+        List<AbstractSqlGen> sqlGens = new ArrayList<>();
         ElementFilter.methodsIn(element.getEnclosedElements()).forEach(executableElement -> {
-            SqlGen sqlGen = handleExecutableElement(executableElement, modelClass);
+            AbstractSqlGen sqlGen = handleExecutableElement(executableElement, modelClass);
             if (sqlGen != null) {
                 sqlGens.add(sqlGen);
             }
@@ -128,30 +129,30 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
         return typeMirror.toString();
     }
 
-    public SqlGen handleExecutableElement(ExecutableElement executableElement, String modelClass) {
+    public AbstractSqlGen handleExecutableElement(ExecutableElement executableElement, String modelClass) {
         Select select = executableElement.getAnnotation(Select.class);
         if (select != null) {
-            return new SelectSql(executableElement, nameModelMapping.get(modelClass), select);
+            return new SelectGen(executableElement, nameModelMapping.get(modelClass), select);
         }
         Count count = executableElement.getAnnotation(Count.class);
         if (count != null) {
-            return new SelectCountSql(executableElement, nameModelMapping.get(modelClass), count);
+            return new CountGen(executableElement, nameModelMapping.get(modelClass), count);
         }
         Insert insert = executableElement.getAnnotation(Insert.class);
         if (insert != null) {
-            return new InsertSql(executableElement, nameModelMapping.get(modelClass), insert);
+            return new InsertGen(executableElement, nameModelMapping.get(modelClass), insert);
         }
         BatchInsert batchInsert = executableElement.getAnnotation(BatchInsert.class);
         if (batchInsert != null) {
-            return new BatchInsertSql(executableElement, nameModelMapping.get(modelClass), batchInsert);
+            return new BatchInsertGen(executableElement, nameModelMapping.get(modelClass), batchInsert);
         }
         Update update = executableElement.getAnnotation(Update.class);
         if (update != null) {
-            return new UpdateSql(executableElement, nameModelMapping.get(modelClass), update);
+            return new UpdateGen(executableElement, nameModelMapping.get(modelClass), update);
         }
         Delete delete = executableElement.getAnnotation(Delete.class);
         if (delete != null) {
-            return new DeleteSql(executableElement, nameModelMapping.get(modelClass), delete);
+            return new DeleteGen(executableElement, nameModelMapping.get(modelClass), delete);
         }
         return null;
     }
