@@ -3,6 +3,7 @@ package com.tg.generator.sql.where;
 import com.tg.annotation.Condition;
 import com.tg.constant.Attach;
 import com.tg.constant.Criterions;
+import com.tg.constant.SqlMode;
 import com.tg.generator.model.TableMapping;
 import com.tg.util.StringUtils;
 import org.dom4j.Element;
@@ -15,8 +16,8 @@ import javax.lang.model.element.VariableElement;
  */
 public class FlatParamWhereSqlGen extends AbstractWhereSqlGen {
 
-    public FlatParamWhereSqlGen(ExecutableElement executableElement, TableMapping tableInfo) {
-        super(executableElement, tableInfo);
+    public FlatParamWhereSqlGen(ExecutableElement executableElement, TableMapping tableInfo, SqlMode sqlMode) {
+        super(executableElement, tableInfo, sqlMode);
     }
 
     @Override
@@ -57,5 +58,14 @@ public class FlatParamWhereSqlGen extends AbstractWhereSqlGen {
                     .append(" #{").append(index).append("} ");
             whereElement.addText(sqlBuilder.toString());
         }
+    }
+
+    private String getColumn(Condition condition, String varName) {
+        String column = null;
+        if (condition == null) {
+            column = tableInfo.getFieldToColumn().get(varName);
+            return StringUtils.isEmpty(column) ? varName : column;
+        }
+        return StringUtils.isEmpty(condition.column()) ? varName : condition.column();
     }
 }

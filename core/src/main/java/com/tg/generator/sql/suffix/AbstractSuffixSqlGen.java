@@ -18,6 +18,7 @@ public abstract class AbstractSuffixSqlGen extends AbstractSqlGen implements Suf
     @Override
     public void generateSuffixSql(Element sqlElement) {
         generateOrder(sqlElement);
+        generatePage(sqlElement);
     }
 
     protected abstract void generatePage(Element sqlElement);

@@ -4,20 +4,22 @@ import com.sun.tools.javac.code.Symbol;
 import com.tg.annotation.*;
 import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
-import com.tg.generator.sql.*;
+import com.tg.generator.sql.SqlGen;
 import com.tg.generator.sql.primary.*;
 import com.tg.util.StringUtils;
 
-import java.util.*;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.*;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import java.util.*;
 
 /**
  * Description:
@@ -96,15 +98,14 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
     }
 
     private void handleDaoGenElement(Element element) {
-        //TODO 编译的warning提示
         if (!(element.getKind() == ElementKind.INTERFACE)) {
             throw new TgDaoException("@DaoGen only annotated Interface");
         }
         String modelClass = getAnnotatedClassForDaoGen(element);
         Symbol.ClassSymbol classSymbol = (Symbol.ClassSymbol) element;
-        List<AbstractSqlGen> sqlGens = new ArrayList<>();
+        List<SqlGen> sqlGens = new ArrayList<>();
         ElementFilter.methodsIn(element.getEnclosedElements()).forEach(executableElement -> {
-            AbstractSqlGen sqlGen = handleExecutableElement(executableElement, modelClass);
+            SqlGen sqlGen = handleExecutableElement(executableElement, modelClass);
             if (sqlGen != null) {
                 sqlGens.add(sqlGen);
             }
@@ -112,6 +113,7 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
         try {
             GenerateHelper.generate(classSymbol.getQualifiedName().toString(), sqlGens);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new TgDaoException(e);
         }
     }
@@ -129,7 +131,7 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
         return typeMirror.toString();
     }
 
-    public AbstractSqlGen handleExecutableElement(ExecutableElement executableElement, String modelClass) {
+    public SqlGen handleExecutableElement(ExecutableElement executableElement, String modelClass) {
         Select select = executableElement.getAnnotation(Select.class);
         if (select != null) {
             return new SelectGen(executableElement, nameModelMapping.get(modelClass), select);

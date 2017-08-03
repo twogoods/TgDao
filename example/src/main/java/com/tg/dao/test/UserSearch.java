@@ -10,4 +10,7 @@ public class UserSearch {
     private int age;
     private String address;
 
+    private int minAge;
+    private int maxAge;
+
 }

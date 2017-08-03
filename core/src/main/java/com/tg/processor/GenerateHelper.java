@@ -1,6 +1,6 @@
 package com.tg.processor;
 
-import com.tg.generator.sql.AbstractSqlGen;
+import com.tg.generator.sql.SqlGen;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -22,7 +22,7 @@ import java.util.StringTokenizer;
  */
 public class GenerateHelper {
 
-    public static void generate(String daoName, List<AbstractSqlGen> sqlGens) throws DocumentException, SAXException, IOException {
+    public static void generate(String daoName, List<SqlGen> sqlGens) throws DocumentException, SAXException, IOException {
         Element rootElement = generateMybatisXmlFrame(daoName);
         sqlGens.forEach(sqlGen -> sqlGen.generateSql(rootElement));
         writeFile(daoName.substring(daoName.lastIndexOf(".") + 1, daoName.length()), daoName.substring(0, daoName.lastIndexOf(".")).replace(".", "/"), rootElement.getDocument());

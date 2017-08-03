@@ -1,7 +1,11 @@
 package com.tg.generator.sql.primary;
 
 import com.tg.annotation.Count;
+import com.tg.annotation.ModelConditions;
+import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
+import com.tg.generator.sql.where.FlatParamWhereSqlGen;
+import com.tg.generator.sql.where.ModelWhereSqlGen;
 import com.tg.util.StringUtils;
 import org.dom4j.Element;
 
@@ -10,12 +14,25 @@ import javax.lang.model.element.ExecutableElement;
 /**
  * Created by twogoods on 2017/7/31.
  */
-public class CountGen extends SelectGen {
+public class CountGen extends PrimarySqlGen {
     private Count count;
 
     public CountGen(ExecutableElement executableElement, TableMapping tableInfo, Count count) {
-        super(executableElement, tableInfo, null);
+        super(executableElement, tableInfo);
         this.count = count;
+    }
+
+    @Override
+    protected void checkAnnotatedRule() {
+        ModelConditions modelConditions = executableElement.getAnnotation(ModelConditions.class);
+        if (modelConditions != null) {
+            if (executableElement.getParameters().size() != 1) {
+                throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
+            }
+            setWhereSqlGen(new ModelWhereSqlGen(executableElement, tableInfo, count.sqlMode(), modelConditions));
+            return;
+        }
+        setWhereSqlGen(new FlatParamWhereSqlGen(executableElement, tableInfo, count.sqlMode()));
     }
 
     @Override

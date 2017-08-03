@@ -35,9 +35,7 @@ public class InsertGen extends PrimarySqlGen {
             selectElement.addAttribute("useGeneratedKeys", "true")
                     .addAttribute("keyProperty", insert.keyProperty());
         }
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("insert into ").append(tableInfo.getTableName()).append(StringUtils.BLANK);
-        selectElement.addText(sqlBuilder.toString());
+        selectElement.addText("insert into " + tableInfo.getTableName());
         Element columnElement = generateTrimElement(selectElement, "(", ")", ",");
         Element valuesElement = generateTrimElement(selectElement, "values (", ")", ",");
         tableInfo.getFieldToColumn().forEach((key, value) -> {
@@ -49,7 +47,6 @@ public class InsertGen extends PrimarySqlGen {
                     .addText("#{" + key + "},");
 
         });
-        return null;
+        return selectElement;
     }
-
 }

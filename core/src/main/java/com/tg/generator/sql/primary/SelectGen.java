@@ -2,6 +2,7 @@ package com.tg.generator.sql.primary;
 
 import com.tg.annotation.ModelConditions;
 import com.tg.annotation.Select;
+import com.tg.constant.SqlMode;
 import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
 import com.tg.generator.sql.suffix.ModelSuffixGen;
@@ -31,11 +32,11 @@ public class SelectGen extends PrimarySqlGen {
             if (executableElement.getParameters().size() != 1) {
                 throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
             }
-            setWhereSqlGen(new ModelWhereSqlGen(executableElement, tableInfo, modelConditions));
+            setWhereSqlGen(new ModelWhereSqlGen(executableElement, tableInfo, select.sqlMode(), modelConditions));
             setSuffixSqlGen(new ModelSuffixGen(executableElement, tableInfo));
             return;
         }
-        setWhereSqlGen(new FlatParamWhereSqlGen(executableElement, tableInfo));
+        setWhereSqlGen(new FlatParamWhereSqlGen(executableElement, tableInfo, select.sqlMode()));
         setSuffixSqlGen(new ParamSuffixGen(executableElement, tableInfo));
     }
 

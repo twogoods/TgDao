@@ -1,5 +1,6 @@
 package com.tg.generator.sql.primary;
 
+import com.tg.constant.SqlMode;
 import com.tg.generator.model.TableMapping;
 import com.tg.generator.sql.AbstractSqlGen;
 import com.tg.generator.sql.SqlGen;

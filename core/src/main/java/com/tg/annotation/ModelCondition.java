@@ -18,5 +18,7 @@ public @interface ModelCondition {
 
     String field();
 
+    String column() default "";
+
     Attach attach() default Attach.AND;
 }

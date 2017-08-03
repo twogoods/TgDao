@@ -3,6 +3,7 @@ package com.tg.generator.sql;
 import com.tg.annotation.Condition;
 import com.tg.annotation.Limit;
 import com.tg.annotation.OffSet;
+import com.tg.constant.SqlMode;
 import com.tg.generator.model.TableMapping;
 import com.tg.util.StringUtils;
 import org.dom4j.Element;
@@ -22,16 +23,7 @@ public abstract class AbstractSqlGen {
     public AbstractSqlGen(ExecutableElement executableElement, TableMapping tableInfo) {
         this.executableElement = executableElement;
         this.tableInfo = tableInfo;
-        variableElements = executableElement.getParameters();
-    }
-
-    protected String getColumn(Condition condition, String varName) {
-        String column = null;
-        if (condition == null) {
-            column = tableInfo.getFieldToColumn().get(varName);
-            return StringUtils.isEmpty(column) ? varName : column;
-        }
-        return StringUtils.isEmpty(condition.column()) ? varName : condition.column();
+        this.variableElements = executableElement.getParameters();
     }
 
     protected void generateWhereParamsSelective(VariableElement variableElement, Element whereElement, int index) {
