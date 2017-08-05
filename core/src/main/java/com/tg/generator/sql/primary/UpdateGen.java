@@ -31,7 +31,7 @@ public class UpdateGen extends PrimarySqlGen {
         if (modelConditions == null) {
 
         } else {
-            setWhereSqlGen(new ModelWhereSqlGen(executableElement, tableInfo, SqlMode.COMMON, modelConditions));
+            whereSqlGen = new ModelWhereSqlGen(executableElement, tableInfo, SqlMode.COMMON, modelConditions);
         }
     }
 

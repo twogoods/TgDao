@@ -5,4 +5,8 @@ package com.tg.annotation;
  */
 public @interface Page {
 
+    String offsetField() default "offset";
+
+    String limitField() default "limit";
+
 }

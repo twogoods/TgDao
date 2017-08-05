@@ -5,8 +5,6 @@ import com.tg.annotation.ModelConditions;
 import com.tg.constant.SqlMode;
 import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
-import com.tg.generator.sql.suffix.ModelSuffixGen;
-import com.tg.generator.sql.suffix.ParamSuffixGen;
 import com.tg.generator.sql.where.FlatParamWhereSqlGen;
 import com.tg.generator.sql.where.ModelWhereSqlGen;
 import org.dom4j.Element;
@@ -31,10 +29,10 @@ public class DeleteGen extends PrimarySqlGen {
             if (executableElement.getParameters().size() != 1) {
                 throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
             }
-            setWhereSqlGen(new ModelWhereSqlGen(executableElement, tableInfo, SqlMode.COMMON, modelConditions));
+            whereSqlGen = new ModelWhereSqlGen(executableElement, tableInfo, SqlMode.COMMON, modelConditions);
             return;
         }
-        setWhereSqlGen(new FlatParamWhereSqlGen(executableElement, tableInfo, SqlMode.COMMON));
+        whereSqlGen = new FlatParamWhereSqlGen(executableElement, tableInfo, SqlMode.COMMON);
     }
 
     @Override

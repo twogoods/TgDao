@@ -3,6 +3,8 @@ package com.tg.dao.test;
 import com.tg.annotation.*;
 import com.tg.constant.Attach;
 import com.tg.constant.Criterions;
+import com.tg.dao.test.model.User;
+import com.tg.dao.test.model.UserSearch;
 
 import java.util.Collection;
 import java.util.List;
@@ -17,16 +19,16 @@ import java.util.List;
  * select where 里全是selective的
  */
 @DaoGen(model = User.class)
-public interface UserDao {
+public interface UserMapper {
     @Select
     @OrderBy("id desc")
-    List<User> queryUser(@Condition(value = Criterions.EQUAL, column = "name") String name,
+    List<User> queryUser(@Condition(value = Criterions.EQUAL, column = "username") String name,
                          @Condition(value = Criterions.GREATER, attach = Attach.OR) int age,
                          @Limit int limit, @OffSet int offset);
 
     @Select
-    List<User> queryUser2(@Condition(value = Criterions.GREATER, column = "score") int score,
-                          @Condition(value = Criterions.LESS, column = "score") int max);
+    List<User> queryUser2(@Condition(value = Criterions.GREATER, column = "age") int min,
+                          @Condition(value = Criterions.LESS, column = "age") int max);
 
     @Select
     List<User> queryUser3(@Condition(column = "id", value = Criterions.IN) String[] ids);
@@ -34,45 +36,52 @@ public interface UserDao {
     @Select
     List<User> queryUser4(@Condition(value = Criterions.IN) Collection id);
 
-    //TODO 分页
     @Select
     @Page
     @ModelConditions({
-            @ModelCondition(attach = Attach.AND, field = "name", criterion = Criterions.EQUAL),
+            @ModelCondition(attach = Attach.AND, field = "username", criterion = Criterions.EQUAL),
             @ModelCondition(attach = Attach.AND, field = "minAge", column = "age", criterion = Criterions.GREATER),
-            @ModelCondition(attach = Attach.AND, field = "maxAge", column = "age", criterion = Criterions.LESS)
+            @ModelCondition(attach = Attach.AND, field = "maxAge", column = "age", criterion = Criterions.LESS),
+            @ModelCondition(attach = Attach.AND, field = "ids", column = "id", criterion = Criterions.IN)
     })
     List<User> queryUser5(UserSearch userSearch);
 
     @Count
-    int count(@Condition(value = Criterions.EQUAL, column = "name") String name,
+    int count(@Condition(value = Criterions.EQUAL, column = "username") String name,
               @Condition(value = Criterions.GREATER, attach = Attach.OR) int age);
 
     @Count
     @ModelConditions({
-            @ModelCondition(attach = Attach.AND, field = "age", criterion = Criterions.GREATER)
+            @ModelCondition(attach = Attach.AND, field = "minAge", column = "age", criterion = Criterions.GREATER)
     })
-    int count2(User user);
+    int count2(UserSearch search);
 
     //insert 一定是selective的
     @Insert(useGeneratedKeys = true, keyProperty = "id")
     int insert(User user);
 
-    @BatchInsert(columns = "name,age,now_address")
+    @BatchInsert(columns = "username,age")
     int batchInsert(List<User> users);
 
     //update 的where部分不是selective的
     @Update
     @ModelConditions({
-            @ModelCondition(field = "id", criterion = Criterions.EQUAL)
+            @ModelCondition(field = "id")
     })
     int update(User user);
 
 
     //delete 的where部分不是selective 的
     @Delete
-    int delete(@Condition(value = Criterions.GREATER, column = "score") int score,
-               @Condition(value = Criterions.LESS, column = "score") int max);
+    int delete(@Condition(value = Criterions.GREATER, column = "age") int min,
+               @Condition(value = Criterions.LESS, column = "age") int max);
+
+    @Delete
+    @ModelConditions({
+            @ModelCondition(attach = Attach.AND, field = "minAge", column = "age", criterion = Criterions.GREATER),
+            @ModelCondition(attach = Attach.AND, field = "maxAge", column = "age", criterion = Criterions.LESS)
+    })
+    int delete2(UserSearch userSearch);
 
 
     //------------一下不支持

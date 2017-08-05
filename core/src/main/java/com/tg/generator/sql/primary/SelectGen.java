@@ -2,7 +2,7 @@ package com.tg.generator.sql.primary;
 
 import com.tg.annotation.ModelConditions;
 import com.tg.annotation.Select;
-import com.tg.constant.SqlMode;
+import com.tg.constant.Constants;
 import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
 import com.tg.generator.sql.suffix.ModelSuffixGen;
@@ -32,12 +32,12 @@ public class SelectGen extends PrimarySqlGen {
             if (executableElement.getParameters().size() != 1) {
                 throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
             }
-            setWhereSqlGen(new ModelWhereSqlGen(executableElement, tableInfo, select.sqlMode(), modelConditions));
-            setSuffixSqlGen(new ModelSuffixGen(executableElement, tableInfo));
+            whereSqlGen = new ModelWhereSqlGen(executableElement, tableInfo, select.sqlMode(), modelConditions);
+            suffixSqlGen = new ModelSuffixGen(executableElement, tableInfo);
             return;
         }
-        setWhereSqlGen(new FlatParamWhereSqlGen(executableElement, tableInfo, select.sqlMode()));
-        setSuffixSqlGen(new ParamSuffixGen(executableElement, tableInfo));
+        whereSqlGen = new FlatParamWhereSqlGen(executableElement, tableInfo, select.sqlMode());
+        suffixSqlGen = new ParamSuffixGen(executableElement, tableInfo);
     }
 
     @Override
@@ -45,7 +45,14 @@ public class SelectGen extends PrimarySqlGen {
         Element selectElement = root.addElement("select");
         selectElement.addAttribute("id", executableElement.getSimpleName().toString());
         //TODO 无paramType
-        selectElement.addAttribute("resultType", tableInfo.getClassName());
+//        System.out.println(executableElement.getReturnType().toString());
+//        Symbol.MethodSymbol methodSymbol = (Symbol.MethodSymbol) executableElement;
+//        Type type = methodSymbol.getReturnType();
+//        Symbol.TypeSymbol typeSymbol = type.asElement();
+//        List<Type> list = type.getTypeArguments();
+        if (executableElement.getReturnType().toString().contains(tableInfo.getClassName())) {
+            selectElement.addAttribute("resultMap", Constants.RESULT_MAP);
+        }
         StringBuilder sqlBuilder = new StringBuilder();
         String columns = select.columns();
         if (StringUtils.isEmpty(columns)) {

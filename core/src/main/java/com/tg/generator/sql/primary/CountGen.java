@@ -10,6 +10,7 @@ import com.tg.util.StringUtils;
 import org.dom4j.Element;
 
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.type.TypeMirror;
 
 /**
  * Created by twogoods on 2017/7/31.
@@ -29,17 +30,17 @@ public class CountGen extends PrimarySqlGen {
             if (executableElement.getParameters().size() != 1) {
                 throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
             }
-            setWhereSqlGen(new ModelWhereSqlGen(executableElement, tableInfo, count.sqlMode(), modelConditions));
+            whereSqlGen = new ModelWhereSqlGen(executableElement, tableInfo, count.sqlMode(), modelConditions);
             return;
         }
-        setWhereSqlGen(new FlatParamWhereSqlGen(executableElement, tableInfo, count.sqlMode()));
+        whereSqlGen = new FlatParamWhereSqlGen(executableElement, tableInfo, count.sqlMode());
     }
 
     @Override
     protected Element generateBaseSql(Element root) {
         Element selectElement = root.addElement("select");
         selectElement.addAttribute("id", executableElement.getSimpleName().toString());
-        selectElement.addAttribute("resultType", executableElement.getReturnType().getKind().toString());
+        selectElement.addAttribute("resultType", executableElement.getReturnType().toString());
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("select count(*)").append(" from ");
         sqlBuilder.append(tableInfo.getTableName()).append(StringUtils.BLANK);

@@ -1,9 +1,7 @@
 package com.tg.generator.sql;
 
-import com.tg.annotation.Condition;
 import com.tg.annotation.Limit;
 import com.tg.annotation.OffSet;
-import com.tg.constant.SqlMode;
 import com.tg.generator.model.TableMapping;
 import com.tg.util.StringUtils;
 import org.dom4j.Element;
@@ -26,8 +24,18 @@ public abstract class AbstractSqlGen {
         this.variableElements = executableElement.getParameters();
     }
 
-    protected void generateWhereParamsSelective(VariableElement variableElement, Element whereElement, int index) {
-        //TODO 解决mybatis @Param() 的问题
+    protected String getColumn(String param) {
+        if (tableInfo.getColumnToField().containsKey(param)) {
+            return param;
+        }
+        if (tableInfo.getFieldToColumn().containsKey(param)) {
+            return tableInfo.getFieldToColumn().get(param);
+        }
+        return param;
+    }
+
+    protected String getColumn(String column, String varName) {
+        return StringUtils.isEmpty(column) ? getColumn(varName) : column;
     }
 
     protected boolean isPageParam(VariableElement variableElement) {
@@ -41,19 +49,5 @@ public abstract class AbstractSqlGen {
                 .addAttribute("suffix", suffix)
                 .addAttribute("suffixOverrides", suffixOverrides);
         return trimElement;
-    }
-
-    protected void generateEach(Element sqlElement, String columns, String varName) {
-        Element each = sqlElement.addElement("foreach");
-        each.addAttribute("collection", varName);
-        each.addAttribute("item", "item");
-        each.addAttribute("separator", ",");
-        StringBuilder eachSql = new StringBuilder().append("(");
-        String[] columnArray = columns.split(",");
-        for (String column : columnArray) {
-            eachSql.append("#{item.").append(tableInfo.getColumnToField().get(column)).append("},");
-        }
-        eachSql.deleteCharAt(eachSql.lastIndexOf(",")).append(")");
-        each.addText(eachSql.toString());
     }
 }

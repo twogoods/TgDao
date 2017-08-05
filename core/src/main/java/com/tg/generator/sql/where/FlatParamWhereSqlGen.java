@@ -5,7 +5,6 @@ import com.tg.constant.Attach;
 import com.tg.constant.Criterions;
 import com.tg.constant.SqlMode;
 import com.tg.generator.model.TableMapping;
-import com.tg.util.StringUtils;
 import org.dom4j.Element;
 
 import javax.lang.model.element.ExecutableElement;
@@ -18,6 +17,7 @@ public class FlatParamWhereSqlGen extends AbstractWhereSqlGen {
 
     public FlatParamWhereSqlGen(ExecutableElement executableElement, TableMapping tableInfo, SqlMode sqlMode) {
         super(executableElement, tableInfo, sqlMode);
+
     }
 
     @Override
@@ -26,46 +26,23 @@ public class FlatParamWhereSqlGen extends AbstractWhereSqlGen {
             return;
         }
         Element whereElement = sqlElement.addElement("where");
-        for (int i = 0; i < variableElements.size(); i++) {
-            generateWhereParam(variableElements.get(i), whereElement, i);
-        }
+        variableElements.forEach(variableElement -> generateWhereParam(variableElement, whereElement));
     }
 
-    private void generateWhereParam(VariableElement variableElement, Element whereElement, int index) {
+    private void generateWhereParam(VariableElement variableElement, Element whereElement) {
         if (isPageParam(variableElement)) {
             return;
         }
         String varName = variableElement.getSimpleName().toString();
         Condition condition = variableElement.getAnnotation(Condition.class);
-        StringBuilder sqlBuilder = new StringBuilder();
         if (condition == null) {
-            sqlBuilder.append(Attach.AND.name())
-                    .append(StringUtils.BLANK)
-                    .append(getColumn(condition, varName))
-                    .append(" = ")
-                    .append("#{").append(index).append("} ");
+            whereParamSqlGen.generateWhereParamSql(whereElement, Criterions.EQUAL, Attach.AND, getColumn(varName), varName);
             return;
         }
-        Criterions criterion = condition.value();
-        if (criterion.inCriterion()) {
-            generateINSuffix(criterion, whereElement, StringUtils.isEmpty(condition.column()) ? varName : condition.column(), varName);
+        if (condition.value().inCriterion()) {
+            generateINSuffix(condition, whereElement, variableElement);
         } else {
-            sqlBuilder.append(condition.attach().name())
-                    .append(StringUtils.BLANK)
-                    .append(getColumn(condition, varName))
-                    .append(StringUtils.BLANK)
-                    .append(criterion.getCriterion())
-                    .append(" #{").append(index).append("} ");
-            whereElement.addText(sqlBuilder.toString());
+            whereParamSqlGen.generateWhereParamSql(whereElement, condition.value(), condition.attach(), getColumn(condition.column(), varName), varName);
         }
-    }
-
-    private String getColumn(Condition condition, String varName) {
-        String column = null;
-        if (condition == null) {
-            column = tableInfo.getFieldToColumn().get(varName);
-            return StringUtils.isEmpty(column) ? varName : column;
-        }
-        return StringUtils.isEmpty(condition.column()) ? varName : condition.column();
     }
 }

@@ -1,5 +1,6 @@
 package com.tg.generator.sql.suffix;
 
+import com.tg.annotation.Page;
 import com.tg.generator.model.TableMapping;
 import org.dom4j.Element;
 
@@ -15,6 +16,9 @@ public class ModelSuffixGen extends AbstractSuffixSqlGen {
 
     @Override
     public void generatePage(Element sqlElement) {
-        sqlElement.addText(" limit #{offset}, #{limit}");
+        Page page = executableElement.getAnnotation(Page.class);
+        if (page != null) {
+            sqlElement.addText(" limit #{" + page.offsetField() + "}, #{" + page.limitField() + "}");
+        }
     }
 }

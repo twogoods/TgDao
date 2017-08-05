@@ -1,6 +1,10 @@
 package com.tg.processor;
 
+import com.tg.constant.Constants;
+import com.tg.exception.TgDaoException;
+import com.tg.generator.model.TableMapping;
 import com.tg.generator.sql.SqlGen;
+import com.tg.util.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -22,8 +26,21 @@ import java.util.StringTokenizer;
  */
 public class GenerateHelper {
 
-    public static void generate(String daoName, List<SqlGen> sqlGens) throws DocumentException, SAXException, IOException {
+    public static void generate(String daoName, List<SqlGen> sqlGens, TableMapping tableMapping) throws DocumentException, SAXException, IOException {
         Element rootElement = generateMybatisXmlFrame(daoName);
+        try {
+            generateResultMap(rootElement, tableMapping);
+        } catch (Exception e) {
+            StackTraceElement[] traces = e.getStackTrace();
+            String s = "";
+            for (StackTraceElement element : traces) {
+                s = s + element.toString();
+            }
+            if (tableMapping == null) {
+                s = "table null";
+            }
+            throw new TgDaoException(s, e);
+        }
         sqlGens.forEach(sqlGen -> sqlGen.generateSql(rootElement));
         writeFile(daoName.substring(daoName.lastIndexOf(".") + 1, daoName.length()), daoName.substring(0, daoName.lastIndexOf(".")).replace(".", "/"), rootElement.getDocument());
     }
@@ -38,6 +55,22 @@ public class GenerateHelper {
                 "</mapper>\n";
         Document document = parseText(frame);
         Element rootElement = document.getRootElement();
+        return rootElement;
+    }
+
+    private static Element generateResultMap(Element rootElement, TableMapping tableMapping) {
+        Element resultMapElement = rootElement.addElement("resultMap");
+        resultMapElement.addAttribute("id", Constants.RESULT_MAP).addAttribute("type", tableMapping.getClassName());
+        if (!StringUtils.isEmpty(tableMapping.getIdColumn())) {
+            resultMapElement.addElement("id")
+                    .addAttribute("column", tableMapping.getIdColumn())
+                    .addAttribute("property", tableMapping.getIdField());
+        }
+        tableMapping.getFieldToColumn().forEach((field, column) -> {
+            resultMapElement.addElement("result")
+                    .addAttribute("column", column)
+                    .addAttribute("property", field);
+        });
         return rootElement;
     }
 

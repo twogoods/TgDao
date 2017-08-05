@@ -7,9 +7,6 @@ import com.tg.util.StringUtils;
 import org.dom4j.Element;
 
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
 
 /**
  * Created by twogoods on 2017/7/31.
@@ -25,12 +22,13 @@ public class BatchInsertGen extends PrimarySqlGen {
     @Override
     protected void checkAnnotatedRule() {
         if (executableElement.getParameters().size() != 1) {
-            throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
+            throw new TgDaoException(String.format("check method %s , support only one parameter",
+                    executableElement.getSimpleName().toString()));
         }
-        //TODO 类型不好检查
-        VariableElement var = executableElement.getParameters().get(0);
-        TypeMirror type = var.asType();
-        TypeKind typeKind = type.getKind();
+        if (!executableElement.getParameters().get(0).asType().toString().contains(tableInfo.getClassName())) {
+            throw new TgDaoException(String.format("insert param need %s,but get %s", tableInfo.getClassName(),
+                    executableElement.getParameters().get(0).asType().toString()));
+        }
     }
 
     @Override
@@ -57,8 +55,22 @@ public class BatchInsertGen extends PrimarySqlGen {
         } else {
             sqlPrefix.append("(").append(columns).append(")").append(sqlSuffix.toString());
             insertElement.addText(sqlPrefix.toString());
-            generateEach(insertElement, columns, variableElements.get(0).getSimpleName().toString());
+            generateEach(insertElement, columns);
         }
         return null;
+    }
+
+    private void generateEach(Element sqlElement, String columns) {
+        Element each = sqlElement.addElement("foreach");
+        each.addAttribute("collection", "collection");
+        each.addAttribute("item", "item");
+        each.addAttribute("separator", ",");
+        StringBuilder eachSql = new StringBuilder().append("(");
+        String[] columnArray = columns.split(",");
+        for (String column : columnArray) {
+            eachSql.append("#{item.").append(getColumn(column)).append("},");
+        }
+        eachSql.deleteCharAt(eachSql.lastIndexOf(",")).append(")");
+        each.addText(eachSql.toString());
     }
 }

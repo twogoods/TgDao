@@ -4,7 +4,6 @@ import com.tg.annotation.ModelCondition;
 import com.tg.annotation.ModelConditions;
 import com.tg.constant.SqlMode;
 import com.tg.generator.model.TableMapping;
-import com.tg.util.StringUtils;
 import org.dom4j.Element;
 
 import javax.lang.model.element.ExecutableElement;
@@ -33,25 +32,11 @@ public class ModelWhereSqlGen extends AbstractWhereSqlGen {
     }
 
     private void generateModelWhereParam(Element whereElement, ModelCondition modelCondition) {
-        if (sqlMode == SqlMode.SELECTIVE) {
-            Element ifElement = whereElement.addElement("if");
-            ifElement.addAttribute("test", modelCondition.field() + " != null");
-            ifElement.addText(modelCondition.attach().name() + StringUtils.BLANK +
-                    getColumn(modelCondition,modelCondition.field()) + StringUtils.BLANK + modelCondition.criterion().getCriterion() +
-                    "#{" + modelCondition.field() + "}");
-        } else {
-            whereElement.addText(modelCondition.attach().name() + StringUtils.BLANK +
-                    getColumn(modelCondition,modelCondition.field()) + StringUtils.BLANK + modelCondition.criterion().getCriterion() +
-                    "#{" + modelCondition.field() + "}");
+        if (modelCondition.criterion().inCriterion()) {
+            generateINSuffix(modelCondition, whereElement);
+            return;
         }
-    }
-
-    private String getColumn(ModelCondition modelCondition, String field) {
-        String column = modelCondition.column();
-        if (StringUtils.isEmpty(column)) {
-            column = tableInfo.getFieldToColumn().get(field);
-            return StringUtils.isEmpty(column) ? field : column;
-        }
-        return column;
+        whereParamSqlGen.generateWhereParamSql(whereElement, modelCondition.criterion(),
+                modelCondition.attach(), getColumn(modelCondition.column(), modelCondition.field()), modelCondition.field());
     }
 }
