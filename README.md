@@ -47,22 +47,7 @@ public interface UserDao {
                @Condition(value = Criterions.LESS, column = "age") int max);
 }
 ```
-### 说明
-* 基于Java8
-* Mybatis里我们经常会用到`@Param`来告诉Mybatis参数的名称，这是因为Java编译后的字节码把方法的参数信息给抹去了，在Java8中可以通过给javac 添加`-parameters`参数来保留参数名字信息，这样mybatis会利用这个信息，这样就不需要加`@Param`注解了。TgDao利用了这个特性，所以请加上`-parameters`配置，各种构建工具都可以配置这个选项，贴出Maven的配置:
 
-```
-  <plugin>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-compiler-plugin</artifactId>
-      <version>3.1</version>
-      <configuration>
-          <compilerArgs>
-              <arg>-parameters</arg>
-          </compilerArgs>
-      </configuration>
-  </plugin>
-```
 ---
 
 ## 文档
@@ -167,6 +152,27 @@ int update(User user);
     int delete2(UserSearch userSearch);
 ```
 更多请看[example](https://github.com/twogoods/TgDao/tree/master/example)
+
+---
+## 说明
+* 基于Java8
+* 修改了源代码中方法的定义或者model里和数据表的映射关系，发现编译出来的xml却没有改变，这是增量编译的原因。你修改了一部分代码，还有一部分未修改的代码编译器就不做处理，这样无法得到这部分信息，所以TgDao无法生成最新版本的xml。解决方法是每次`mvn clean compile`先清除一下编译目录，更好的方案正在寻找...
+* Mybatis里我们经常会用到`@Param`来告诉Mybatis参数的名称，这是因为Java编译后的字节码把方法的参数信息给抹去了，在Java8中可以通过给javac 添加`-parameters`参数来保留参数名字信息，这样mybatis会利用这个信息，这样就不需要加`@Param`注解了。TgDao利用了这个特性，所以请加上`-parameters`配置，各种构建工具都可以配置这个选项，贴出Maven的配置:
+
+```
+  <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.1</version>
+      <configuration>
+          <compilerArgs>
+              <arg>-parameters</arg>
+          </compilerArgs>
+      </configuration>
+  </plugin>
+```
+如果在运行时看到mybatis报错如：`Parameter 'XXX' not found. Available parameters are...` 你也可以手动加上`@Param`注解
 ### 资料
+增量编译对于`annotation processors`一直是个问题 https://issues.gradle.org/browse/GRADLE-3259
 how to debug http://blog.jensdriller.com/how-to-debug-a-java-annotation-processor-using-intellij/
 
