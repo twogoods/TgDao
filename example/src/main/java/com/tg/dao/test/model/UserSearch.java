@@ -12,6 +12,7 @@ public class UserSearch {
     private int age;
 
     private List<Integer> ids;
+    private int[] idArr;
 
     private int minAge;
     private int maxAge;
@@ -81,5 +82,13 @@ public class UserSearch {
 
     public void setIds(List<Integer> ids) {
         this.ids = ids;
+    }
+
+    public int[] getIdArr() {
+        return idArr;
+    }
+
+    public void setIdArr(int[] idArr) {
+        this.idArr = idArr;
     }
 }

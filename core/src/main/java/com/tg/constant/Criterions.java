@@ -10,6 +10,7 @@ public enum Criterions {
     GREATER_OR_EQUAL(">="),
     LESS("<="),
     LESS_OR_EQUAL("<="),
+    LIKE("like"),
     IN("in"),
     NOT_IN("not in");
 

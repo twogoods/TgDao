@@ -3,6 +3,7 @@ package com.tg.dao.test;
 import com.tg.annotation.*;
 import com.tg.constant.Attach;
 import com.tg.constant.Criterions;
+import com.tg.constant.InType;
 import com.tg.dao.test.model.User;
 import com.tg.dao.test.model.UserSearch;
 
@@ -20,7 +21,7 @@ import java.util.List;
  */
 @DaoGen(model = User.class)
 public interface UserMapper {
-    @Select
+    @Select(columns = "username,age")
     @OrderBy("id desc")
     List<User> queryUser(@Condition(value = Criterions.EQUAL, column = "username") String name,
                          @Condition(value = Criterions.GREATER, attach = Attach.OR) int age,
@@ -31,7 +32,8 @@ public interface UserMapper {
                           @Condition(value = Criterions.LESS, column = "age") int max);
 
     @Select
-    List<User> queryUser3(@Condition(column = "id", value = Criterions.IN) String[] ids);
+    List<User> queryUser3(@Condition(value = Criterions.EQUAL, column = "username") String name,
+                          @Condition(column = "id", value = Criterions.IN) String[] ids);
 
     @Select
     List<User> queryUser4(@Condition(value = Criterions.IN) Collection id);
@@ -39,10 +41,11 @@ public interface UserMapper {
     @Select
     @Page
     @ModelConditions({
-            @ModelCondition(attach = Attach.AND, field = "username", criterion = Criterions.EQUAL),
-            @ModelCondition(attach = Attach.AND, field = "minAge", column = "age", criterion = Criterions.GREATER),
-            @ModelCondition(attach = Attach.AND, field = "maxAge", column = "age", criterion = Criterions.LESS),
-            @ModelCondition(attach = Attach.AND, field = "ids", column = "id", criterion = Criterions.IN)
+            @ModelCondition(field = "username", criterion = Criterions.EQUAL),
+            @ModelCondition(field = "minAge", column = "age", criterion = Criterions.GREATER),
+            @ModelCondition(field = "maxAge", column = "age", criterion = Criterions.LESS),
+            @ModelCondition(field = "ids", column = "id", criterion = Criterions.IN),
+            @ModelCondition(field = "idArr", column = "id", criterion = Criterions.IN, paramType = InType.ARRAY)
     })
     List<User> queryUser5(UserSearch userSearch);
 
@@ -54,7 +57,7 @@ public interface UserMapper {
     @ModelConditions({
             @ModelCondition(attach = Attach.AND, field = "minAge", column = "age", criterion = Criterions.GREATER)
     })
-    int count2(UserSearch search);
+    Integer count2(UserSearch search);
 
     //insert 一定是selective的
     @Insert(useGeneratedKeys = true, keyProperty = "id")
@@ -84,7 +87,7 @@ public interface UserMapper {
     int delete2(UserSearch userSearch);
 
 
-    //------------一下不支持
+    //------------以下不支持------------------
     int update2(User user, @Condition(column = "id", value = Criterions.IN) int[] ids);
 
     int update3(int state, @Condition(column = "id", value = Criterions.IN) int[] ids);

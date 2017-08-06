@@ -1,7 +1,6 @@
 package com.tg.processor;
 
 import com.tg.constant.Constants;
-import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
 import com.tg.generator.sql.SqlGen;
 import com.tg.util.StringUtils;
@@ -28,19 +27,7 @@ public class GenerateHelper {
 
     public static void generate(String daoName, List<SqlGen> sqlGens, TableMapping tableMapping) throws DocumentException, SAXException, IOException {
         Element rootElement = generateMybatisXmlFrame(daoName);
-        try {
-            generateResultMap(rootElement, tableMapping);
-        } catch (Exception e) {
-            StackTraceElement[] traces = e.getStackTrace();
-            String s = "";
-            for (StackTraceElement element : traces) {
-                s = s + element.toString();
-            }
-            if (tableMapping == null) {
-                s = "table null";
-            }
-            throw new TgDaoException(s, e);
-        }
+        generateResultMap(rootElement, tableMapping);
         sqlGens.forEach(sqlGen -> sqlGen.generateSql(rootElement));
         writeFile(daoName.substring(daoName.lastIndexOf(".") + 1, daoName.length()), daoName.substring(0, daoName.lastIndexOf(".")).replace(".", "/"), rootElement.getDocument());
     }

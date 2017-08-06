@@ -25,7 +25,7 @@ public class InsertGen extends PrimarySqlGen {
             throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
         }
         if (!tableInfo.getClassName().equals(executableElement.getParameters().get(0).asType().toString())) {
-            throw new TgDaoException(String.format("insert param need %s,but get %s", tableInfo.getClassName(),
+            throw new TgDaoException(String.format("insert param need '%s' but get '%s'", tableInfo.getClassName(),
                     executableElement.getParameters().get(0).asType().toString()));
         }
     }

@@ -2,6 +2,9 @@ package com.tg.generator.sql.where;
 
 import com.tg.annotation.Condition;
 import com.tg.annotation.ModelCondition;
+import com.tg.constant.Attach;
+import com.tg.constant.Criterions;
+import com.tg.constant.InType;
 import com.tg.constant.SqlMode;
 import com.tg.generator.model.TableMapping;
 import com.tg.generator.sql.AbstractSqlGen;
@@ -30,26 +33,31 @@ public abstract class AbstractWhereSqlGen extends AbstractSqlGen implements Wher
     }
 
     protected void generateINSuffix(Condition condition, Element sqlElement, VariableElement variableElement) {
-        Element ifElement = sqlElement.addElement("if");
-        String param = "collection";//mybatis 不加@Param注解,数组列表的参数只能是collection,list,array这几种
-        if (variableElement.asType().toString().contains("[]")) {
-            ifElement.addAttribute("test", "array !=null and array.length > 0");
-            param = "array";
-        } else {
-            ifElement.addAttribute("test", "collection !=null and collection.size() > 0");
-        }
         String varName = variableElement.getSimpleName().toString();
         String column = StringUtils.isEmpty(condition.column()) ? varName : condition.column();
-        ifElement.addText(condition.attach().name() + StringUtils.BLANK + column + StringUtils.BLANK + condition.value().getCriterion());
-        generateForEach(ifElement, param);
+        InType inType = variableElement.asType().toString().contains("[]") ? InType.ARRAY : InType.COLLECTION;
+        if (executableElement.getParameters().size() == 1) {
+            /*
+             * mybatis  可以通过编译时加-parameters 去掉@Param注解
+             * 但是在方法只有一个参数,并且是数组或者list时,mybatis 似乎不会把方法的参数名当做可以获取值得那个名字
+             * 那个名字是collection,list,array这几种
+             */
+            inSuffix(sqlElement, condition.attach(), condition.value(), column, inType.getName(), inType);
+            return;
+        }
+        inSuffix(sqlElement, condition.attach(), condition.value(), column, varName, inType);
     }
 
     protected void generateINSuffix(ModelCondition condition, Element sqlElement) {
-        Element ifElement = sqlElement.addElement("if");
         String column = StringUtils.isEmpty(condition.column()) ? condition.field() : condition.column();
-        ifElement.addAttribute("test", condition.field() + " !=null and " + condition.field() + ".size() > 0");
-        ifElement.addText(condition.attach().name() + StringUtils.BLANK + column + StringUtils.BLANK + condition.criterion().getCriterion());
-        generateForEach(ifElement, condition.field());
+        inSuffix(sqlElement, condition.attach(), condition.criterion(), column, condition.field(), condition.paramType());
+    }
+
+    private void inSuffix(Element sqlElement, Attach attach, Criterions criterion, String column, String field, InType inType) {
+        Element ifElement = sqlElement.addElement("if");
+        ifElement.addAttribute("test", field + " !=null and " + field + "." + inType.getCheckExpress() + " > 0");
+        ifElement.addText(attach.name() + StringUtils.BLANK + column + StringUtils.BLANK + criterion.getCriterion());
+        generateForEach(ifElement, field);
     }
 
     private void generateForEach(Element ifElement, String param) {

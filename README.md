@@ -1,64 +1,172 @@
-### 介绍
-根据用户定义的方法，编译期自动生成mybatis的sql文件，生成的文件在dao接口所在的包下。
+## 介绍
+TgDao是一款基于Mybatis的编译期sql生成器，它能根据你的方法签名生成对应的Mapper.xml文件。
 
 ```
-@Table(name = "user")
+@Table(name = "T_User")
 public class User {
     @Id("id")
     private int id;
-
-    private String name;
-
+    private String username;
     private int age;
-
-    @Column("now_address")
-    private String address;
-
 }
 
 ```
-上面的model定义了模型和数据库表的关系，看到下面这些方法的签名，聪明的你肯定能猜出每个方法的sql吧，这就是这个库打算做的工作。
+上面的model定义了模型和数据库表的关系，看到下面这些方法的签名，聪明的你肯定能猜出每个方法的sql吧，这就是这个库要做的工作。
+
 ```
 @DaoGen(model = User.class)
 public interface UserDao {
     @Select
     @OrderBy("id desc")
-    List<User> queryUser(@Condition(value = Criterions.EQUAL, column = "name") String name,
+    List<User> queryUser(@Condition(value = Criterions.EQUAL, column = "username") String name,
                          @Condition(value = Criterions.GREATER, attach = Attach.OR) int age,
                          @Limit int limit, @OffSet int offset);
 
     @Select
-    List<User> queryUser2(@Condition(value = Criterions.GREATER, column = "score") int score,
-                          @Condition(value = Criterions.LESS, column = "score") int max);
+    List<User> queryUser2(@Condition(value = Criterions.GREATER, column = "age") int min,
+                          @Condition(value = Criterions.LESS, column = "age") int max);
 
     @Select
-    List<User> queryUser3(@Condition(column = "id", value = Criterions.IN) String[] ids);
-    
-    @Select
-    List<User> queryUser4(@Condition(value = Criterions.IN) Collection id);
-    
-    @Select
-    @ModelConditions({
-            @ModelCondition(attach = Attach.AND, field = "name", criterion = Criterions.EQUAL),
-            @ModelCondition(attach = Attach.AND, field = "age", criterion = Criterions.EQUAL)
-    })
-    
-    List<User> queryUser5(User user);
-    
-    @Count
-    int count(@Condition(value = Criterions.EQUAL, column = "name") String name,
-              @Condition(value = Criterions.GREATER, attach = Attach.OR) int age);
+    List<User> queryUser3(@Condition(value = Criterions.EQUAL, column = "username") String name,
+                          @Condition(attach = Attach.OR, column = "id", value = Criterions.IN) String[] ids);
 
-    @Insert
+    @Insert(useGeneratedKeys = true, keyProperty = "id")
     int insert(User user);
+
+    @BatchInsert(columns = "username,age")
+    int batchInsert(List<User> users);
+
+    @Update
+    @ModelConditions({
+            @ModelCondition(field = "id")
+    })
+    int update(User user);
+
+    @Delete
+    int delete(@Condition(value = Criterions.GREATER, column = "age") int min,
+               @Condition(value = Criterions.LESS, column = "age") int max);
 }
 ```
+### 说明
+* 基于Java8
+* Mybatis里我们经常会用到`@Param`来告诉Mybatis参数的名称，这是因为Java编译后的字节码把方法的参数信息给抹去了，在Java8中可以通过给javac 添加`-parameters`参数来保留参数名字信息，这样mybatis会利用这个信息，这样就不需要加`@Param`注解了。TgDao利用了这个特性，所以请加上`-parameters`配置，各种构建工具都可以配置这个选项，贴出Maven的配置:
 
+```
+  <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.1</version>
+      <configuration>
+          <compilerArgs>
+              <arg>-parameters</arg>
+          </compilerArgs>
+      </configuration>
+  </plugin>
+```
+---
+
+## 文档
+### Table与Model关联
+`@Table`记录数据表的名字
+`@Id`记录主键信息
+`@Column`映射了表字段和属性的关系，如果表字段和类属性同名，那么可以省略这个注解
+`@Ingore`忽略这个类属性，没有哪个表字段与它关联
+
+```
+@Table(name = "T_User")
+public class User {
+    @Id("id")
+    private int id;
+
+    private String username;
+    private String password;
+    private int age;
+
+    @Column("old_address")
+    private String oldAddress;
+    @Column("now_address")
+    private String nowAddress;
+
+    private int state;
+
+    @Column("created_at")
+    private Timestamp createdAt;
+    @Column("updated_at")
+    private Timestamp updatedAt;
+
+    @Ignore
+    private String remrk;
+```
+### 查询
+```
+@Select
+@OrderBy("id desc")
+List<User> queryUser(@Condition(value = Criterions.EQUAL, column = "username") String name,
+                    @Condition(value = Criterions.GREATER, attach = Attach.OR) int age,
+                    @Condition(column = "id", value = Criterions.IN) String[] ids,
+                    @Limit int limit, @OffSet int offset);
+```
+##### @Select
+* `columns`:默认 `select *`可以配置`columns("username,age")`选择部分字段；
+* `SqlMode`:有两个选择，SqlMode.SELECTIVE 和 SqlMode.COMMON，区别是selective会检查查询条件的字段是否为null来实现动态的查询,即`<if test="name != null">username = #{name}</if>`
+
+关于selective: 出于mysql字段不为null这个基础,insert的字段是selective的；update set 语句是selective的而where里不是selective的；delete的where里不是selective的；select where 里可选。
+##### @Condition
+* `criterion`：查询条件，`=`,`<`,`>`,`in`等，具体见`Criterions`
+* `column`：与表字段的对应，若与字段名相同可不配置
+* `attach`：连接 `and`,`or`， 默认是`and`
+* `@Limit`, `@OffSet`表示分页字段
+
+---
+上面的例子在查询条件比较多时方法参数会比较多，我们可以把查询条件封装到一个类里，使用`@ModelConditions`来注解查询条件，注意被`@ModelConditions`只能有一个参数。
+
+```
+@Select
+@Page
+@ModelConditions({
+       @ModelCondition(field = "username", criterion = Criterions.EQUAL),
+       @ModelCondition(field = "minAge", column = "age", criterion = Criterions.GREATER),
+       @ModelCondition(field = "maxAge", column = "age", criterion = Criterions.LESS),
+       @ModelCondition(field = "ids", column = "id", criterion = Criterions.IN),
+       @ModelCondition(field = "idArr", column = "id", criterion = Criterions.IN, paramType = InType.ARRAY)
+})
+List<User> queryUser5(UserSearch userSearch);
+```
+##### @ModelCondition
+* `field`:必填，查询类的属性
+* `column`：选填，对应的表字段
+* `paramType`：只在in 查询下才有效，配置是`array`还是`collection`类型。
+
+### 插入
+```
+@Insert(useGeneratedKeys = true, keyProperty = "id")//获取自增id
+int insert(User user);
+
+@BatchInsert(columns = "username,age")//插入的列
+int batchInsert(List<User> users);
+```
+### 更新
+```
+@Update
+@ModelConditions({
+       @ModelCondition(field = "id")
+})
+int update(User user);
+```
+### 删除
+```
+    @Delete
+    int delete(@Condition(value = Criterions.GREATER, column = "age") int min,
+               @Condition(value = Criterions.LESS, column = "age") int max);
+
+    @Delete
+    @ModelConditions({
+            @ModelCondition(attach = Attach.AND, field = "minAge", column = "age", criterion = Criterions.GREATER),
+            @ModelCondition(attach = Attach.AND, field = "maxAge", column = "age", criterion = Criterions.LESS)
+    })
+    int delete2(UserSearch userSearch);
+```
+更多请看[example](https://github.com/twogoods/TgDao/tree/master/example)
 ### 资料
-https://mapperhelper.github.io/docs/2.use/
+how to debug http://blog.jensdriller.com/how-to-debug-a-java-annotation-processor-using-intellij/
 
-java8 移除APT   引入 Pluggable Annotation Processing API
-
-debug http://blog.jensdriller.com/how-to-debug-a-java-annotation-processor-using-intellij/
-
-http://blog.csdn.net/u011315960/article/details/64907139

@@ -26,7 +26,7 @@ public class BatchInsertGen extends PrimarySqlGen {
                     executableElement.getSimpleName().toString()));
         }
         if (!executableElement.getParameters().get(0).asType().toString().contains(tableInfo.getClassName())) {
-            throw new TgDaoException(String.format("insert param need %s,but get %s", tableInfo.getClassName(),
+            throw new TgDaoException(String.format("insert param need '%s' but get '%s'", tableInfo.getClassName(),
                     executableElement.getParameters().get(0).asType().toString()));
         }
     }

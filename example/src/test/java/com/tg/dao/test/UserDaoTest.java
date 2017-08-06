@@ -56,7 +56,7 @@ public class UserDaoTest {
 
     @Test
     public void testQueryUser3() throws Exception {
-        List<User> users = mapper.queryUser3(new String[]{"1", "2", "3"});
+        List<User> users = mapper.queryUser3(null, new String[]{"1", "2", "3"});
         Assert.assertTrue(users.size() > 0);
     }
 
@@ -74,7 +74,8 @@ public class UserDaoTest {
         search.setMaxAge(30);
         search.setOffset(0);
         search.setLimit(10);
-        search.setIds(new ArrayList<>());
+        search.setIds(Arrays.asList(1, 2, 3));
+        search.setIdArr(new int[]{1, 2, 3});
         List<User> users = mapper.queryUser5(search);
         Assert.assertTrue(users.size() > 0);
     }
@@ -117,12 +118,13 @@ public class UserDaoTest {
     @Test
     public void testUpdate() throws Exception {
         User user = new User();
-        user.setId(4);
+        user.setId(8);
         user.setPassword("123");
         user.setAge(23);
         user.setOldAddress("上海");
         user.setNowAddress("北京");
-        mapper.update(user);
+        int res =mapper.update(user);
+        Assert.assertTrue(res > 0);
     }
 
     @Test
