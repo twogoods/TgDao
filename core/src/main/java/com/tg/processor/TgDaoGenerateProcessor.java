@@ -143,7 +143,6 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
             //see https://area-51.blog/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
             typeMirror = mirroredTypeException.getTypeMirror();
         }
-        //TODO null 编译报错
         return typeMirror.toString();
     }
 

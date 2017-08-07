@@ -44,14 +44,11 @@ public class SelectGen extends PrimarySqlGen {
     protected Element generateBaseSql(Element root) {
         Element selectElement = root.addElement("select");
         selectElement.addAttribute("id", executableElement.getSimpleName().toString());
-        //TODO 无paramType
-//        System.out.println(executableElement.getReturnType().toString());
-//        Symbol.MethodSymbol methodSymbol = (Symbol.MethodSymbol) executableElement;
-//        Type type = methodSymbol.getReturnType();
-//        Symbol.TypeSymbol typeSymbol = type.asElement();
-//        List<Type> list = type.getTypeArguments();
-        if (executableElement.getReturnType().toString().contains(tableInfo.getClassName())) {
+        String returnType = executableElement.getReturnType().toString();
+        if (returnType.contains(tableInfo.getClassName())) {
             selectElement.addAttribute("resultMap", Constants.RESULT_MAP);
+        } else {
+            selectElement.addAttribute("resultType", returnType);
         }
         StringBuilder sqlBuilder = new StringBuilder();
         String columns = select.columns();

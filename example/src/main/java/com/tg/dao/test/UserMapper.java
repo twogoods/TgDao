@@ -6,6 +6,7 @@ import com.tg.constant.Criterions;
 import com.tg.constant.InType;
 import com.tg.dao.test.model.User;
 import com.tg.dao.test.model.UserSearch;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,6 +27,10 @@ public interface UserMapper {
     List<User> queryUser(@Condition(value = Criterions.EQUAL, column = "username") String name,
                          @Condition(value = Criterions.GREATER, attach = Attach.OR) int age,
                          @Limit int limit, @OffSet int offset);
+
+
+    @Select(columns = "username,age")
+    List<User> queryUser1(@Condition Integer age);
 
     @Select
     List<User> queryUser2(@Condition(value = Criterions.GREATER, column = "age") int min,

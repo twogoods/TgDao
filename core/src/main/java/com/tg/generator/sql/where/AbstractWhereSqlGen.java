@@ -26,6 +26,12 @@ public abstract class AbstractWhereSqlGen extends AbstractSqlGen implements Wher
     public AbstractWhereSqlGen(ExecutableElement executableElement, TableMapping tableInfo, SqlMode sqlMode) {
         super(executableElement, tableInfo);
         if (sqlMode == SqlMode.SELECTIVE) {
+            //bugfix 方法直接传一个查询条件即只有一个参数时不能是selective的
+            if (executableElement.getAnnotation(ModelCondition.class) == null &&
+                    executableElement.getParameters().size() == 1) {
+                whereParamSqlGen = new DirectParamSqlGen();
+                return;
+            }
             whereParamSqlGen = new SelectiveParamSqlGen();
         } else {
             whereParamSqlGen = new DirectParamSqlGen();

@@ -49,6 +49,12 @@ public class UserDaoTest {
     }
 
     @Test
+    public void testQueryUser1() throws Exception {
+        List<User> users = mapper.queryUser1(22);
+        Assert.assertTrue(users.size() > 0);
+    }
+
+    @Test
     public void testQueryUser2() throws Exception {
         List<User> users = mapper.queryUser2(12, 30);
         Assert.assertTrue(users.size() > 0);

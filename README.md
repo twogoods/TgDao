@@ -173,6 +173,6 @@ int update(User user);
 ```
 如果在运行时看到mybatis报错如：`Parameter 'XXX' not found. Available parameters are...` 你也可以手动加上`@Param`注解
 ### 资料
-增量编译对于`annotation processors`一直是个问题 https://issues.gradle.org/browse/GRADLE-3259
+增量编译对于`annotation processors`一直是个问题 https://issues.gradle.org/browse/GRADLE-3259  
 how to debug http://blog.jensdriller.com/how-to-debug-a-java-annotation-processor-using-intellij/
 

@@ -45,7 +45,6 @@ public class UpdateGen extends PrimarySqlGen {
     }
 
     private void generateSet(Element updateElement) {
-        //TODO
         Element setElement = updateElement.addElement("set");
         tableInfo.getFieldToColumn().forEach((field, column) -> {
             Element ifElement = setElement.addElement("if");
