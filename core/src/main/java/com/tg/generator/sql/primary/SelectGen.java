@@ -57,7 +57,7 @@ public class SelectGen extends PrimarySqlGen {
         } else {
             sqlBuilder.append("select ").append(columns).append(" from ");
         }
-        sqlBuilder.append(tableInfo.getTableName()).append(StringUtils.BLANK);
+        sqlBuilder.append(tableInfo.getTableName()).append(Constants.BLANK);
         selectElement.addText(sqlBuilder.toString());
         return selectElement;
     }

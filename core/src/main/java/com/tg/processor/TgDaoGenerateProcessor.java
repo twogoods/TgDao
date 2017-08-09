@@ -93,7 +93,11 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
                 .forEach(symbol -> {
                     Id id = symbol.getAnnotation(Id.class);
                     if (id != null) {
-                        tableMapping.setIdColumn(id.value());
+                        if (StringUtils.isEmpty(id.value())) {
+                            tableMapping.setIdColumn(symbol.getSimpleName().toString());
+                        } else {
+                            tableMapping.setIdColumn(id.value());
+                        }
                         tableMapping.setIdField(symbol.getSimpleName().toString());
                     } else {
                         String columnName = parseColumnAnnotation(symbol);

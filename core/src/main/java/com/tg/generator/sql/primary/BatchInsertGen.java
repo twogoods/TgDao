@@ -1,6 +1,7 @@
 package com.tg.generator.sql.primary;
 
 import com.tg.annotation.BatchInsert;
+import com.tg.constant.Constants;
 import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
 import com.tg.util.StringUtils;
@@ -38,7 +39,7 @@ public class BatchInsertGen extends PrimarySqlGen {
                 .addAttribute("parameterType", tableInfo.getClassName());
         StringBuilder sqlPrefix = new StringBuilder();
         StringBuilder sqlSuffix = new StringBuilder();
-        sqlPrefix.append("insert into ").append(tableInfo.getTableName()).append(StringUtils.BLANK);
+        sqlPrefix.append("insert into ").append(tableInfo.getTableName()).append(Constants.BLANK);
         sqlSuffix.append(" values ");
         String columns = batchInsert.columns();
 

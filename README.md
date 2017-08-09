@@ -18,17 +18,17 @@ public class User {
 public interface UserDao {
     @Select
     @OrderBy("id desc")
-    List<User> queryUser(@Condition(value = Criterions.EQUAL, column = "username") String name,
-                         @Condition(value = Criterions.GREATER, attach = Attach.OR) int age,
+    List<User> queryUser(@Condition(criterion = Criterions.EQUAL, column = "username") String name,
+                         @Condition(criterion = Criterions.GREATER, attach = Attach.OR) int age,
                          @Limit int limit, @OffSet int offset);
 
     @Select
-    List<User> queryUser2(@Condition(value = Criterions.GREATER, column = "age") int min,
-                          @Condition(value = Criterions.LESS, column = "age") int max);
+    List<User> queryUser2(@Condition(criterion = Criterions.GREATER, column = "age") int min,
+                          @Condition(criterion = Criterions.LESS, column = "age") int max);
 
     @Select
-    List<User> queryUser3(@Condition(value = Criterions.EQUAL, column = "username") String name,
-                          @Condition(attach = Attach.OR, column = "id", value = Criterions.IN) String[] ids);
+    List<User> queryUser3(@Condition(criterion = Criterions.EQUAL, column = "username") String name,
+                          @Condition(attach = Attach.OR, column = "id", criterion = Criterions.IN) String[] ids);
 
     @Insert(useGeneratedKeys = true, keyProperty = "id")
     int insert(User user);
@@ -43,8 +43,8 @@ public interface UserDao {
     int update(User user);
 
     @Delete
-    int delete(@Condition(value = Criterions.GREATER, column = "age") int min,
-               @Condition(value = Criterions.LESS, column = "age") int max);
+    int delete(@Condition(criterion = Criterions.GREATER, column = "age") int min,
+               @Condition(criterion = Criterions.LESS, column = "age") int max);
 }
 ```
 
@@ -86,9 +86,9 @@ public class User {
 ```
 @Select
 @OrderBy("id desc")
-List<User> queryUser(@Condition(value = Criterions.EQUAL, column = "username") String name,
-                    @Condition(value = Criterions.GREATER, attach = Attach.OR) int age,
-                    @Condition(column = "id", value = Criterions.IN) String[] ids,
+List<User> queryUser(@Condition(criterion = Criterions.EQUAL, column = "username") String name,
+                    @Condition(criterion = Criterions.GREATER, attach = Attach.OR) int age,
+                    @Condition(column = "id", criterion = Criterions.IN) String[] ids,
                     @Limit int limit, @OffSet int offset);
 ```
 ##### @Select
@@ -100,9 +100,20 @@ List<User> queryUser(@Condition(value = Criterions.EQUAL, column = "username") S
 * `criterion`：查询条件，`=`,`<`,`>`,`in`等，具体见`Criterions`
 * `column`：与表字段的对应，若与字段名相同可不配置
 * `attach`：连接 `and`,`or`， 默认是`and`
-* `@Limit`, `@OffSet`表示分页字段
+* `test`：selective下的判断表达式，即`<if test="username != null">`里的test属性
 
----
+`@Limit`，`@OffSet`为分页字段。
+方法的参数不加任何注解一样会被当做查询条件，如下面两个函数效果是一样的：
+
+```
+@Select()
+List<User> queryUser(Integer age);
+
+@Select()
+List<User> queryUser(@Condition(criterion = Criterions.EQUAL, column = "age") Integer age);
+```
+
+#### 查询Model
 上面的例子在查询条件比较多时方法参数会比较多，我们可以把查询条件封装到一个类里，使用`@ModelConditions`来注解查询条件，注意被`@ModelConditions`只能有一个参数。
 
 ```
@@ -118,10 +129,14 @@ List<User> queryUser(@Condition(value = Criterions.EQUAL, column = "username") S
 List<User> queryUser5(UserSearch userSearch);
 ```
 ##### @ModelCondition
-* `field`:必填，查询类的属性
-* `column`：选填，对应的表字段
-* `paramType`：只在in 查询下才有效，配置是`array`还是`collection`类型。
+* `field`:必填，查询条件中类对应的属性
+* `column`：对应的表字段
+* `paramType`：in 查询下才需要配置，数组为`array`,List为`collection`类型
+* `test`：selective下的判断表达式，即`<if test="username != null">`里的test属性
 
+`@Page`只能用在ModelConditions下的查询，并且方法参数的那个类应该有`offset`，`limit`这两个属性
+
+---
 ### 插入
 ```
 @Insert(useGeneratedKeys = true, keyProperty = "id")//获取自增id
@@ -130,19 +145,23 @@ int insert(User user);
 @BatchInsert(columns = "username,age")//插入的列
 int batchInsert(List<User> users);
 ```
+
+---
 ### 更新
 ```
-@Update
+@Update(columns = "username,age")//选择更新某几个列
 @ModelConditions({
        @ModelCondition(field = "id")
 })
 int update(User user);
 ```
+
+---
 ### 删除
 ```
     @Delete
-    int delete(@Condition(value = Criterions.GREATER, column = "age") int min,
-               @Condition(value = Criterions.LESS, column = "age") int max);
+    int delete(@Condition(criterion = Criterions.GREATER, column = "age") int min,
+               @Condition(criterion = Criterions.LESS, column = "age") int max);
 
     @Delete
     @ModelConditions({
@@ -156,6 +175,7 @@ int update(User user);
 ---
 ## 说明
 * 基于Java8
+* 只简单测试了MySql
 * 修改了源代码中方法的定义或者model里和数据表的映射关系，发现编译出来的xml却没有改变，这是增量编译的原因。你修改了一部分代码，还有一部分未修改的代码编译器就不做处理，这样无法得到这部分信息，所以TgDao无法生成最新版本的xml。解决方法是每次`mvn clean compile`先清除一下编译目录，更好的方案正在寻找...
 * Mybatis里我们经常会用到`@Param`来告诉Mybatis参数的名称，这是因为Java编译后的字节码把方法的参数信息给抹去了，在Java8中可以通过给javac 添加`-parameters`参数来保留参数名字信息，这样mybatis会利用这个信息，这样就不需要加`@Param`注解了。TgDao利用了这个特性，所以请加上`-parameters`配置，各种构建工具都可以配置这个选项，贴出Maven的配置:
 
@@ -173,6 +193,5 @@ int update(User user);
 ```
 如果在运行时看到mybatis报错如：`Parameter 'XXX' not found. Available parameters are...` 你也可以手动加上`@Param`注解
 ### 资料
-增量编译对于`annotation processors`一直是个问题 https://issues.gradle.org/browse/GRADLE-3259  
+增量编译和`annotation processors` https://issues.gradle.org/browse/GRADLE-3259
 how to debug http://blog.jensdriller.com/how-to-debug-a-java-annotation-processor-using-intellij/
-

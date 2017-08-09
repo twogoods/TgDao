@@ -14,9 +14,12 @@ import java.lang.annotation.Target;
 @Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.CLASS)
 public @interface Condition {
-    Criterions value() default Criterions.EQUAL;
+    Criterions criterion() default Criterions.EQUAL;
 
     String column() default "";
 
     Attach attach() default Attach.AND;
+
+    //selective 下参数值得判断条件 即  <if test="username != null">username = #{username}</if>
+    String test() default "";
 }

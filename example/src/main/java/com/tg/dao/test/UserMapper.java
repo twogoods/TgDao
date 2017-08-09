@@ -6,7 +6,6 @@ import com.tg.constant.Criterions;
 import com.tg.constant.InType;
 import com.tg.dao.test.model.User;
 import com.tg.dao.test.model.UserSearch;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,24 +23,23 @@ import java.util.List;
 public interface UserMapper {
     @Select(columns = "username,age")
     @OrderBy("id desc")
-    List<User> queryUser(@Condition(value = Criterions.EQUAL, column = "username") String name,
-                         @Condition(value = Criterions.GREATER, attach = Attach.OR) int age,
+    List<User> queryUser(@Condition(criterion = Criterions.EQUAL, column = "username", test = "name!=null and name!=''") String name,
+                         @Condition(criterion = Criterions.GREATER, attach = Attach.OR) int age,
                          @Limit int limit, @OffSet int offset);
 
-
     @Select(columns = "username,age")
-    List<User> queryUser1(@Condition Integer age);
+    List<User> queryUser1(Integer age);
 
     @Select
-    List<User> queryUser2(@Condition(value = Criterions.GREATER, column = "age") int min,
-                          @Condition(value = Criterions.LESS, column = "age") int max);
+    List<User> queryUser2(@Condition(criterion = Criterions.GREATER, column = "age") int min,
+                          @Condition(criterion = Criterions.LESS, column = "age") int max);
 
     @Select
-    List<User> queryUser3(@Condition(value = Criterions.EQUAL, column = "username") String name,
-                          @Condition(column = "id", value = Criterions.IN) String[] ids);
+    List<User> queryUser3(@Condition(criterion = Criterions.EQUAL, column = "username") String name,
+                          @Condition(column = "id", criterion = Criterions.IN) String[] ids);
 
     @Select
-    List<User> queryUser4(@Condition(value = Criterions.IN) Collection id);
+    List<User> queryUser4(@Condition(criterion = Criterions.IN) Collection id);
 
     @Select
     @Page
@@ -55,8 +53,8 @@ public interface UserMapper {
     List<User> queryUser5(UserSearch userSearch);
 
     @Count
-    int count(@Condition(value = Criterions.EQUAL, column = "username") String name,
-              @Condition(value = Criterions.GREATER, attach = Attach.OR) int age);
+    int count(@Condition(criterion = Criterions.EQUAL, column = "username") String name,
+              @Condition(criterion = Criterions.GREATER, attach = Attach.OR) int age);
 
     @Count
     @ModelConditions({
@@ -72,7 +70,7 @@ public interface UserMapper {
     int batchInsert(List<User> users);
 
     //update 的where部分不是selective的
-    @Update
+    @Update(columns = "username,age")
     @ModelConditions({
             @ModelCondition(field = "id")
     })
@@ -81,8 +79,8 @@ public interface UserMapper {
 
     //delete 的where部分不是selective 的
     @Delete
-    int delete(@Condition(value = Criterions.GREATER, column = "age") int min,
-               @Condition(value = Criterions.LESS, column = "age") int max);
+    int delete(@Condition(criterion = Criterions.GREATER, column = "age") int min,
+               @Condition(criterion = Criterions.LESS, column = "age") int max);
 
     @Delete
     @ModelConditions({
@@ -93,8 +91,8 @@ public interface UserMapper {
 
 
     //------------以下不支持------------------
-    int update2(User user, @Condition(column = "id", value = Criterions.IN) int[] ids);
+    int update2(User user, @Condition(column = "id", criterion = Criterions.IN) int[] ids);
 
-    int update3(int state, @Condition(column = "id", value = Criterions.IN) int[] ids);
+    int update3(int state, @Condition(column = "id", criterion = Criterions.IN) int[] ids);
 
 }

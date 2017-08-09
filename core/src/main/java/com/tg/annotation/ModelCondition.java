@@ -23,6 +23,8 @@ public @interface ModelCondition {
 
     Attach attach() default Attach.AND;
 
+    String test() default "";
+
     //in 查询时设置
     InType paramType() default InType.COLLECTION;
 }

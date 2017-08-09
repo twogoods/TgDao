@@ -4,6 +4,7 @@ import com.tg.annotation.ModelCondition;
 import com.tg.annotation.ModelConditions;
 import com.tg.constant.SqlMode;
 import com.tg.generator.model.TableMapping;
+import com.tg.generator.sql.where.param.Param;
 import org.dom4j.Element;
 
 import javax.lang.model.element.ExecutableElement;
@@ -36,7 +37,13 @@ public class ModelWhereSqlGen extends AbstractWhereSqlGen {
             generateINSuffix(modelCondition, whereElement);
             return;
         }
-        whereParamSqlGen.generateWhereParamSql(whereElement, modelCondition.criterion(),
-                modelCondition.attach(), getColumn(modelCondition.column(), modelCondition.field()), modelCondition.field());
+        Param param = new Param.Builder().whereElement(whereElement)
+                .criterion(modelCondition.criterion())
+                .attach(modelCondition.attach())
+                .column(getColumn(modelCondition.column(), modelCondition.field()))
+                .field(modelCondition.field())
+                .test(modelCondition.test())
+                .build();
+        whereParamSqlGen.generateWhereParamSql(param);
     }
 }

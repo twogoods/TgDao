@@ -2,15 +2,14 @@ package com.tg.generator.sql.primary;
 
 import com.tg.annotation.Count;
 import com.tg.annotation.ModelConditions;
+import com.tg.constant.Constants;
 import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
 import com.tg.generator.sql.where.FlatParamWhereSqlGen;
 import com.tg.generator.sql.where.ModelWhereSqlGen;
-import com.tg.util.StringUtils;
 import org.dom4j.Element;
 
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.type.TypeMirror;
 
 /**
  * Created by twogoods on 2017/7/31.
@@ -43,7 +42,7 @@ public class CountGen extends PrimarySqlGen {
         selectElement.addAttribute("resultType", executableElement.getReturnType().toString());
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("select count(*)").append(" from ");
-        sqlBuilder.append(tableInfo.getTableName()).append(StringUtils.BLANK);
+        sqlBuilder.append(tableInfo.getTableName()).append(Constants.BLANK);
         selectElement.addText(sqlBuilder.toString());
         return selectElement;
     }

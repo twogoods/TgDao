@@ -5,6 +5,7 @@ import com.tg.constant.Attach;
 import com.tg.constant.Criterions;
 import com.tg.constant.SqlMode;
 import com.tg.generator.model.TableMapping;
+import com.tg.generator.sql.where.param.Param;
 import org.dom4j.Element;
 
 import javax.lang.model.element.ExecutableElement;
@@ -17,7 +18,6 @@ public class FlatParamWhereSqlGen extends AbstractWhereSqlGen {
 
     public FlatParamWhereSqlGen(ExecutableElement executableElement, TableMapping tableInfo, SqlMode sqlMode) {
         super(executableElement, tableInfo, sqlMode);
-
     }
 
     @Override
@@ -35,14 +35,24 @@ public class FlatParamWhereSqlGen extends AbstractWhereSqlGen {
         }
         String varName = variableElement.getSimpleName().toString();
         Condition condition = variableElement.getAnnotation(Condition.class);
+        Param.Builder builder = new Param.Builder().whereElement(whereElement).field(varName);
         if (condition == null) {
-            whereParamSqlGen.generateWhereParamSql(whereElement, Criterions.EQUAL, Attach.AND, getColumn(varName), varName);
+            Param param = builder.criterion(Criterions.EQUAL)
+                    .attach(Attach.AND)
+                    .column(getColumn(varName))
+                    .build();
+            whereParamSqlGen.generateWhereParamSql(param);
             return;
         }
-        if (condition.value().inCriterion()) {
+        if (condition.criterion().inCriterion()) {
             generateINSuffix(condition, whereElement, variableElement);
         } else {
-            whereParamSqlGen.generateWhereParamSql(whereElement, condition.value(), condition.attach(), getColumn(condition.column(), varName), varName);
+            Param param = builder.criterion(condition.criterion())
+                    .attach(condition.attach())
+                    .column(getColumn(condition.column(), varName))
+                    .test(condition.test())
+                    .build();
+            whereParamSqlGen.generateWhereParamSql(param);
         }
     }
 }

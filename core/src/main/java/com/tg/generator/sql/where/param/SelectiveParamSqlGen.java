@@ -1,7 +1,6 @@
 package com.tg.generator.sql.where.param;
 
-import com.tg.constant.Attach;
-import com.tg.constant.Criterions;
+import com.tg.constant.Constants;
 import com.tg.util.StringUtils;
 import org.dom4j.Element;
 
@@ -9,12 +8,15 @@ import org.dom4j.Element;
  * Created by twogoods on 2017/8/5.
  */
 public class SelectiveParamSqlGen implements WhereParamSqlGen {
-
     @Override
-    public void generateWhereParamSql(Element whereElement, Criterions criterion, Attach attach, String column, String field) {
-        Element ifElement = whereElement.addElement("if");
-        ifElement.addAttribute("test", field + " != null");
-        ifElement.addText(attach.name() + StringUtils.BLANK + column +
-                StringUtils.BLANK + criterion.getCriterion() + " #{" + field + "} ");
+    public void generateWhereParamSql(Param param) {
+        Element ifElement = param.getWhereElement().addElement("if");
+        if (StringUtils.isEmpty(param.getTest())) {
+            ifElement.addAttribute("test", param.getField() + " != null");
+        } else {
+            ifElement.addAttribute("test", param.getTest());
+        }
+        ifElement.addText(param.getAttach().name() + Constants.BLANK + param.getColumn() +
+                Constants.BLANK + param.getCriterion().getCriterion() + " #{" + param.getField() + "} ");
     }
 }

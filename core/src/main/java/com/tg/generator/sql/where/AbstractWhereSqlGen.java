@@ -2,10 +2,7 @@ package com.tg.generator.sql.where;
 
 import com.tg.annotation.Condition;
 import com.tg.annotation.ModelCondition;
-import com.tg.constant.Attach;
-import com.tg.constant.Criterions;
-import com.tg.constant.InType;
-import com.tg.constant.SqlMode;
+import com.tg.constant.*;
 import com.tg.generator.model.TableMapping;
 import com.tg.generator.sql.AbstractSqlGen;
 import com.tg.generator.sql.where.param.DirectParamSqlGen;
@@ -48,10 +45,10 @@ public abstract class AbstractWhereSqlGen extends AbstractSqlGen implements Wher
              * 但是在方法只有一个参数,并且是数组或者list时,mybatis 似乎不会把方法的参数名当做可以获取值得那个名字
              * 那个名字是collection,list,array这几种
              */
-            inSuffix(sqlElement, condition.attach(), condition.value(), column, inType.getName(), inType);
+            inSuffix(sqlElement, condition.attach(), condition.criterion(), column, inType.getName(), inType);
             return;
         }
-        inSuffix(sqlElement, condition.attach(), condition.value(), column, varName, inType);
+        inSuffix(sqlElement, condition.attach(), condition.criterion(), column, varName, inType);
     }
 
     protected void generateINSuffix(ModelCondition condition, Element sqlElement) {
@@ -62,7 +59,7 @@ public abstract class AbstractWhereSqlGen extends AbstractSqlGen implements Wher
     private void inSuffix(Element sqlElement, Attach attach, Criterions criterion, String column, String field, InType inType) {
         Element ifElement = sqlElement.addElement("if");
         ifElement.addAttribute("test", field + " !=null and " + field + "." + inType.getCheckExpress() + " > 0");
-        ifElement.addText(attach.name() + StringUtils.BLANK + column + StringUtils.BLANK + criterion.getCriterion());
+        ifElement.addText(attach.name() + Constants.BLANK + column + Constants.BLANK + criterion.getCriterion());
         generateForEach(ifElement, field);
     }
 
