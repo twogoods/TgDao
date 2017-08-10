@@ -1,5 +1,7 @@
 package com.tg.dao.test;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.tg.dao.test.model.User;
 import com.tg.dao.test.model.UserSearch;
 import org.apache.ibatis.io.Resources;
@@ -22,7 +24,6 @@ import java.util.List;
  */
 public class UserDaoTest {
 
-    private SqlSessionFactory sqlSessionFactory;
     private SqlSession session;
     private UserMapper mapper;
 
@@ -56,8 +57,11 @@ public class UserDaoTest {
 
     @Test
     public void testQueryUser2() throws Exception {
+        PageHelper.offsetPage(1, 10);
         List<User> users = mapper.queryUser2(12, 30);
-        Assert.assertTrue(users.size() > 0);
+        PageInfo page = new PageInfo<>(users);
+        System.out.println(page.getTotal());
+        Assert.assertTrue(page.getList().size() > 0);
     }
 
     @Test
@@ -129,7 +133,7 @@ public class UserDaoTest {
         user.setAge(23);
         user.setOldAddress("上海");
         user.setNowAddress("北京");
-        int res =mapper.update(user);
+        int res = mapper.update(user);
         Assert.assertTrue(res > 0);
     }
 

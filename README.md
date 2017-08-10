@@ -1,5 +1,5 @@
 ## 介绍
-TgDao是一款基于Mybatis的编译期sql生成器，它能根据你的方法签名生成对应的Mapper.xml文件。
+TgDao是一款基于Mybatis的编译期SQL生成器，它能根据你的方法签名生成对应的Mapper.xml文件。它能减少你日常开发中大量简单SQL的编写，由于它只是生成Mapper.xml文件，因此对于复杂的查询场景，你同样可以自己编写来完成一些工具所无法生成的SQl。
 
 ```
 @Table(name = "T_User")
@@ -134,7 +134,25 @@ List<User> queryUser5(UserSearch userSearch);
 * `paramType`：in 查询下才需要配置，数组为`array`,List为`collection`类型
 * `test`：selective下的判断表达式，即`<if test="username != null">`里的test属性
 
-`@Page`只能用在ModelConditions下的查询，并且方法参数的那个类应该有`offset`，`limit`这两个属性
+`@Page`只能用在ModelConditions下的查询，并且方法参数的那个类应该有`offset`，`limit`这两个属性。
+#### 分页
+查询参数里`@Limit`，`@OffSet`或查询model里`@Page`的分页功能都比较原始，TgDao只是一款SQL生成器而已，因此你可以使用各种插件，或者与其他框架集成。对于分页，可以无缝与[PageHelper](https://github.com/pagehelper/Mybatis-PageHelper)整合。
+
+```
+@Select
+List<User> queryUser2(@Condition(criterion = Criterions.GREATER, column = "age") int min,
+                @Condition(criterion = Criterions.LESS, column = "age") int max);
+
+
+@Test
+public void testQueryUser2() throws Exception {
+   PageHelper.offsetPage(1, 10);
+   List<User> users = mapper.queryUser2(12, 30);
+   PageInfo page = new PageInfo<>(users);
+   System.out.println(page.getTotal());
+   Assert.assertTrue(page.getList().size() > 0);
+}
+```
 
 ---
 ### 插入
@@ -159,23 +177,23 @@ int update(User user);
 ---
 ### 删除
 ```
-    @Delete
-    int delete(@Condition(criterion = Criterions.GREATER, column = "age") int min,
-               @Condition(criterion = Criterions.LESS, column = "age") int max);
+@Delete
+int delete(@Condition(criterion = Criterions.GREATER, column = "age") int min,
+          @Condition(criterion = Criterions.LESS, column = "age") int max);
 
-    @Delete
-    @ModelConditions({
-            @ModelCondition(attach = Attach.AND, field = "minAge", column = "age", criterion = Criterions.GREATER),
-            @ModelCondition(attach = Attach.AND, field = "maxAge", column = "age", criterion = Criterions.LESS)
-    })
-    int delete2(UserSearch userSearch);
+@Delete
+@ModelConditions({
+       @ModelCondition(attach = Attach.AND, field = "minAge", column = "age", criterion = Criterions.GREATER),
+       @ModelCondition(attach = Attach.AND, field = "maxAge", column = "age", criterion = Criterions.LESS)
+})
+int delete2(UserSearch userSearch);
 ```
 更多请看[example](https://github.com/twogoods/TgDao/tree/master/example)
 
 ---
 ## 说明
-* 基于Java8
-* 只简单测试了MySql
+* 编译生成的XML文件与Mapper接口在同一个包下
+* 只支持Java8和MySql
 * 修改了源代码中方法的定义或者model里和数据表的映射关系，发现编译出来的xml却没有改变，这是增量编译的原因。你修改了一部分代码，还有一部分未修改的代码编译器就不做处理，这样无法得到这部分信息，所以TgDao无法生成最新版本的xml。解决方法是每次`mvn clean compile`先清除一下编译目录，更好的方案正在寻找...
 * Mybatis里我们经常会用到`@Param`来告诉Mybatis参数的名称，这是因为Java编译后的字节码把方法的参数信息给抹去了，在Java8中可以通过给javac 添加`-parameters`参数来保留参数名字信息，这样mybatis会利用这个信息，这样就不需要加`@Param`注解了。TgDao利用了这个特性，所以请加上`-parameters`配置，各种构建工具都可以配置这个选项，贴出Maven的配置:
 
@@ -194,4 +212,5 @@ int update(User user);
 如果在运行时看到mybatis报错如：`Parameter 'XXX' not found. Available parameters are...` 你也可以手动加上`@Param`注解
 ### 资料
 增量编译和`annotation processors` https://issues.gradle.org/browse/GRADLE-3259
+
 how to debug http://blog.jensdriller.com/how-to-debug-a-java-annotation-processor-using-intellij/
