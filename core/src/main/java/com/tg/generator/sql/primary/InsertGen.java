@@ -1,6 +1,7 @@
 package com.tg.generator.sql.primary;
 
 import com.tg.annotation.Insert;
+import com.tg.constant.Constants;
 import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
 import com.tg.util.StringUtils;
@@ -42,10 +43,24 @@ public class InsertGen extends PrimarySqlGen {
         selectElement.addText("insert into " + tableInfo.getTableName());
         Element columnElement = generateTrimElement(selectElement, "(", ")", ",");
         Element valuesElement = generateTrimElement(selectElement, "values (", ")", ",");
+        if (StringUtils.isNotEmpty(insert.columns())) {
+            for (String column : insert.columns().split(Constants.separator)) {
+                String field = tableInfo.getColumnToField().get(column);
+                if (StringUtils.isNotEmpty(field)) {
+                    columnElement.addElement("if")
+                            .addAttribute("test", field + " != null")
+                            .addText(column + Constants.separator);
+                    valuesElement.addElement("if")
+                            .addAttribute("test", field + " != null")
+                            .addText("#{" + field + "},");
+                }
+            }
+            return selectElement;
+        }
         tableInfo.getFieldToColumn().forEach((key, value) -> {
             columnElement.addElement("if")
                     .addAttribute("test", key + " != null")
-                    .addText(value + ",");
+                    .addText(value + Constants.separator);
             valuesElement.addElement("if")
                     .addAttribute("test", key + " != null")
                     .addText("#{" + key + "},");

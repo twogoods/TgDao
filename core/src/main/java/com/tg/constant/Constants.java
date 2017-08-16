@@ -5,5 +5,6 @@ package com.tg.constant;
  */
 public class Constants {
     public static final String BLANK = " ";
+    public static final String separator = ",";
     public static final String RESULT_MAP = "BaseResultMap";
 }

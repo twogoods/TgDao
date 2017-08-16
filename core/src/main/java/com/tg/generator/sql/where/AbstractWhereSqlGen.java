@@ -68,7 +68,7 @@ public abstract class AbstractWhereSqlGen extends AbstractSqlGen implements Wher
         each.addAttribute("item", "item");
         each.addAttribute("collection", param);
         each.addAttribute("open", "(");
-        each.addAttribute("separator", ",");
+        each.addAttribute("separator", Constants.separator);
         each.addAttribute("close", ")");
         each.addText("#{item}");
     }

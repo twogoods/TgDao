@@ -2,10 +2,12 @@ package com.tg.generator.sql.primary;
 
 import com.tg.annotation.ModelConditions;
 import com.tg.annotation.Update;
+import com.tg.constant.Constants;
 import com.tg.constant.SqlMode;
 import com.tg.exception.TgDaoException;
 import com.tg.generator.model.TableMapping;
 import com.tg.generator.sql.where.ModelWhereSqlGen;
+import com.tg.util.StringUtils;
 import org.dom4j.Element;
 
 import javax.lang.model.element.ExecutableElement;
@@ -46,6 +48,17 @@ public class UpdateGen extends PrimarySqlGen {
 
     private void generateSet(Element updateElement) {
         Element setElement = updateElement.addElement("set");
+        if (StringUtils.isNotEmpty(update.columns())) {
+            for (String column : update.columns().split(Constants.separator)) {
+                String field = tableInfo.getColumnToField().get(column);
+                if (StringUtils.isNotEmpty(field)) {
+                    Element ifElement = setElement.addElement("if");
+                    ifElement.addAttribute("test", field + " != null");
+                    ifElement.addText(column + " = #{" + field + "},");
+                }
+            }
+            return;
+        }
         tableInfo.getFieldToColumn().forEach((field, column) -> {
             Element ifElement = setElement.addElement("if");
             ifElement.addAttribute("test", field + " != null");

@@ -11,6 +11,8 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.CLASS)
 public @interface Insert {
+    String columns() default "";
+
     boolean useGeneratedKeys() default false;
 
     String keyProperty() default "";

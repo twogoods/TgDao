@@ -65,9 +65,9 @@ public class BatchInsertGen extends PrimarySqlGen {
         Element each = sqlElement.addElement("foreach");
         each.addAttribute("collection", "collection");
         each.addAttribute("item", "item");
-        each.addAttribute("separator", ",");
+        each.addAttribute("separator", Constants.separator);
         StringBuilder eachSql = new StringBuilder().append("(");
-        String[] columnArray = columns.split(",");
+        String[] columnArray = columns.split(Constants.separator);
         for (String column : columnArray) {
             eachSql.append("#{item.").append(getColumn(column)).append("},");
         }

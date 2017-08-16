@@ -134,7 +134,7 @@ public class UserDaoTest {
         user.setOldAddress("上海");
         user.setNowAddress("北京");
         int res = mapper.update(user);
-        Assert.assertTrue(res > 0);
+        Assert.assertTrue(res >= 0);
     }
 
     @Test
