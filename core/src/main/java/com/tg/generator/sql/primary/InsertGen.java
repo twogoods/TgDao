@@ -36,7 +36,7 @@ public class InsertGen extends PrimarySqlGen {
         Element selectElement = root.addElement("insert");
         selectElement.addAttribute("id", executableElement.getSimpleName().toString())
                 .addAttribute("parameterType", tableInfo.getClassName());
-        if (insert.useGeneratedKeys() && StringUtils.isEmpty(insert.keyProperty())) {
+        if (insert.useGeneratedKeys() && StringUtils.isNotEmpty(insert.keyProperty())) {
             selectElement.addAttribute("useGeneratedKeys", "true")
                     .addAttribute("keyProperty", insert.keyProperty());
         }

@@ -57,7 +57,6 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        messager.printMessage(Diagnostic.Kind.NOTE, "annotations size " + annotations.size());
         annotations.stream()
                 .filter(typeElement -> typeElement.toString().equals(TABLEANNOTATIONNAME))
                 .forEach(typeElement -> roundEnv.getElementsAnnotatedWith(typeElement).forEach((this::handleTableElement)));
@@ -70,14 +69,12 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
                     .filter(typeElement -> typeElement.toString().equals(DAOGENANNOTATIONNAME))
                     .forEach(typeElement -> roundEnv.getElementsAnnotatedWith(typeElement).forEach((this::handleDaoGenElement)));
         } catch (Exception e) {
-            messager.printMessage(Diagnostic.Kind.ERROR, "出错了");
-            messager.printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+            messager.printMessage(Diagnostic.Kind.ERROR, e.toString());
         }
         return true;
     }
 
     private void handleTableElement(Element element) {
-        messager.printMessage(Diagnostic.Kind.NOTE, "execute  handleTableElement");
         Symbol.ClassSymbol classSymbol = (Symbol.ClassSymbol) element;
         TableMapping tableMapping = new TableMapping();
         tableMapping.setClassName(classSymbol.getQualifiedName().toString());
@@ -117,11 +114,11 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
     }
 
     private void handleDaoGenElement(Element element) {
-        messager.printMessage(Diagnostic.Kind.NOTE, "execute  handleDaoGenElement");
         if (!(element.getKind() == ElementKind.INTERFACE)) {
             throw new TgDaoException("@DaoGen only annotated Interface");
         }
-        String modelClass = getAnnotatedClassForDaoGen(element);
+        DaoGen daoGen = element.getAnnotation(DaoGen.class);
+        String modelClass = getAnnotatedClassForDaoGen(daoGen);
         List<SqlGen> sqlGens = ElementFilter.methodsIn(element.getEnclosedElements())
                 .parallelStream()
                 .map(executableElement -> handleExecutableElement(executableElement, modelClass))
@@ -131,15 +128,14 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
         if (mapping == null)
             throw new TgDaoException("can't get table info, check '" + modelClass + "' is annotated @Table");
         try {
-            GenerateHelper.generate(((Symbol.ClassSymbol) element).getQualifiedName().toString(), sqlGens, mapping);
+            GenerateHelper.generate(daoGen.fileName(), ((Symbol.ClassSymbol) element).getQualifiedName().toString(), sqlGens, mapping);
         } catch (Exception e) {
             e.printStackTrace();
             throw new TgDaoException(e);
         }
     }
 
-    private String getAnnotatedClassForDaoGen(Element element) {
-        DaoGen daoGen = element.getAnnotation(DaoGen.class);
+    private String getAnnotatedClassForDaoGen(DaoGen daoGen) {
         TypeMirror typeMirror = null;
         try {
             daoGen.model();

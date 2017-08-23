@@ -24,12 +24,16 @@ import java.util.StringTokenizer;
  * Created by twogoods on 2017/7/28.
  */
 public class GenerateHelper {
-
-    public static void generate(String daoName, List<SqlGen> sqlGens, TableMapping tableMapping) throws DocumentException, SAXException, IOException {
+    public static void generate(String fileName, String daoName, List<SqlGen> sqlGens, TableMapping tableMapping) throws DocumentException, SAXException, IOException {
         Element rootElement = generateMybatisXmlFrame(daoName);
         generateResultMap(rootElement, tableMapping);
         sqlGens.forEach(sqlGen -> sqlGen.generateSql(rootElement));
-        writeFile(daoName.substring(daoName.lastIndexOf(".") + 1, daoName.length()), daoName.substring(0, daoName.lastIndexOf(".")).replace(".", "/"), rootElement.getDocument());
+        if (StringUtils.isNotEmpty(fileName)) {
+            writeFile(fileName, daoName.substring(0, daoName.lastIndexOf(".")).replace(".", "/"), rootElement.getDocument());
+            return;
+        }
+        writeFile(daoName.substring(daoName.lastIndexOf(".") + 1, daoName.length()) + ".xml",
+                daoName.substring(0, daoName.lastIndexOf(".")).replace(".", "/"), rootElement.getDocument());
     }
 
     private static Element generateMybatisXmlFrame(String daoName) throws SAXException, DocumentException {
@@ -48,7 +52,7 @@ public class GenerateHelper {
     private static Element generateResultMap(Element rootElement, TableMapping tableMapping) {
         Element resultMapElement = rootElement.addElement("resultMap");
         resultMapElement.addAttribute("id", Constants.RESULT_MAP).addAttribute("type", tableMapping.getClassName());
-        if (!StringUtils.isEmpty(tableMapping.getIdColumn())) {
+        if (StringUtils.isNotEmpty(tableMapping.getIdColumn())) {
             resultMapElement.addElement("id")
                     .addAttribute("column", tableMapping.getIdColumn())
                     .addAttribute("property", tableMapping.getIdField());
@@ -72,7 +76,7 @@ public class GenerateHelper {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        File file = new File(dir, fileName + ".xml");
+        File file = new File(dir, fileName);
         FileWriter fileWriter = new FileWriter(file);
         XMLWriter xmlWriter = new XMLWriter(fileWriter, format);
         xmlWriter.write(document);

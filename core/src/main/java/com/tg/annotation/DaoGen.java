@@ -6,8 +6,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Description:
- *
  * @author twogoods
  * @version 0.1
  * @since 2017-05-06
@@ -15,5 +13,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.CLASS)
 public @interface DaoGen {
+    String fileName() default "";
+
     Class<?> model();
 }

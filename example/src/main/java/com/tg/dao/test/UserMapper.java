@@ -19,7 +19,7 @@ import java.util.List;
  * delete where里不是selective的
  * select where 里全是selective的
  */
-@DaoGen(model = User.class)
+@DaoGen(model = User.class, fileName = "UserTestMapper.xml")
 public interface UserMapper {
     @Select(columns = "username,age")
     @OrderBy("id desc")
@@ -32,7 +32,7 @@ public interface UserMapper {
 
     @Select
     List<User> queryUser2(@Condition(criterion = Criterions.GREATER, column = "age") int min,
-                              @Condition(criterion = Criterions.LESS, column = "age") int max);
+                          @Condition(criterion = Criterions.LESS, column = "age") int max);
 
     @Select
     List<User> queryUser3(@Condition(criterion = Criterions.EQUAL, column = "username") String name,
