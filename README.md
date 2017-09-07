@@ -51,6 +51,15 @@ public interface UserDao {
 ---
 
 ## 文档
+引入如下依赖：
+
+```
+<dependency>
+  <groupId>com.github.twogoods</groupId>
+  <artifactId>tgdao-core</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
 ### Table与Model关联
 `@Table`记录数据表的名字
 `@Id`记录主键信息
