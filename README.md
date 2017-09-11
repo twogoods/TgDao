@@ -172,6 +172,7 @@ int insert(User user);
 @BatchInsert(columns = "username,age")//插入的列
 int batchInsert(List<User> users);
 ```
+`BatchInsert`强烈建议写columns，因为生成的语句并不会过滤null字段，数据库中插入null易报错。
 
 ---
 ### 更新

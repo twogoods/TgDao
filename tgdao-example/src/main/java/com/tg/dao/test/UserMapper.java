@@ -70,6 +70,9 @@ public interface UserMapper {
     @BatchInsert(columns = "username,age")
     int batchInsert(List<User> users);
 
+    @BatchInsert()
+    int batchtest(List<User> users);
+
     //update 的where部分不是selective的
     @Update(columns = "username,age")
     @ModelConditions({

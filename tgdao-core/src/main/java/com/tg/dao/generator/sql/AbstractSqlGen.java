@@ -38,6 +38,13 @@ public abstract class AbstractSqlGen {
         return StringUtils.isEmpty(column) ? getColumn(varName) : column;
     }
 
+    protected String getField(String param) {
+        if (tableInfo.getColumnToField().containsKey(param)) {
+            return tableInfo.getColumnToField().get(param);
+        }
+        return param;
+    }
+
     protected boolean isPageParam(VariableElement variableElement) {
         boolean flag = variableElement.getAnnotation(Limit.class) != null || variableElement.getAnnotation(OffSet.class) != null;
         return flag;
