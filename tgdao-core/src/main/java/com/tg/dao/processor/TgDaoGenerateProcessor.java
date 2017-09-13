@@ -20,10 +20,7 @@ import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -90,11 +87,7 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
                 .forEach(symbol -> {
                     Id id = symbol.getAnnotation(Id.class);
                     if (id != null) {
-                        if (StringUtils.isEmpty(id.value())) {
-                            tableMapping.setIdColumn(symbol.getSimpleName().toString());
-                        } else {
-                            tableMapping.setIdColumn(id.value());
-                        }
+                        tableMapping.setIdColumn(StringUtils.isEmpty(id.value()) ? symbol.getSimpleName().toString() : id.value());
                         tableMapping.setIdField(symbol.getSimpleName().toString());
                     } else {
                         String columnName = parseColumnAnnotation(symbol);
@@ -107,6 +100,7 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
         tableMapping.setFieldToColumn(fieldToColumn);
         nameModelMapping.put(tableMapping.getClassName(), tableMapping);
     }
+
 
     private String parseColumnAnnotation(Element element) {
         Column column = element.getAnnotation(Column.class);

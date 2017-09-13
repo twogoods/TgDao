@@ -24,6 +24,16 @@ import java.util.StringTokenizer;
  * Created by twogoods on 2017/7/28.
  */
 public class GenerateHelper {
+
+    private static final String frame = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
+            "\n" +
+            "<!DOCTYPE mapper\n" +
+            "PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">\n" +
+            "\n" +
+            "<mapper namespace=\"%s\">\n" +
+            "</mapper>\n";
+
+
     public static void generate(String fileName, String daoName, List<SqlGen> sqlGens, TableMapping tableMapping) throws DocumentException, SAXException, IOException {
         Element rootElement = generateMybatisXmlFrame(daoName);
         generateResultMap(rootElement, tableMapping);
@@ -37,14 +47,8 @@ public class GenerateHelper {
     }
 
     private static Element generateMybatisXmlFrame(String daoName) throws SAXException, DocumentException {
-        String frame = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
-                "\n" +
-                "<!DOCTYPE mapper\n" +
-                "PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">\n" +
-                "\n" +
-                "<mapper namespace=\"" + daoName + "\">\n" +
-                "</mapper>\n";
-        Document document = parseText(frame);
+        String content = String.format(frame, daoName);
+        Document document = parseText(content);
         Element rootElement = document.getRootElement();
         return rootElement;
     }
