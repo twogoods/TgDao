@@ -7,6 +7,7 @@ import com.tg.dao.constant.Criterions;
 import com.tg.dao.constant.InType;
 import com.tg.dao.test.model.User;
 import com.tg.dao.test.model.UserSearch;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,8 +29,12 @@ public interface UserMapper {
                          @Condition(criterion = Criterions.GREATER, attach = Attach.OR) int age,
                          @Limit int limit, @OffSet int offset);
 
+    //注意这个生成的sql,只有一个param时要加@Param注解
     @Select(columns = "username,age")
-    List<User> queryUser1(Integer age);
+    List<User> queryUser1(@Param("age") Integer age);
+
+    @Select(columns = "username,age")
+    List<User> queryUser2param(Integer age, String username);
 
     @Select
     List<User> queryUser2(@Condition(criterion = Criterions.GREATER, column = "age") int min,

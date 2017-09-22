@@ -30,9 +30,7 @@ public class UpdateGen extends PrimarySqlGen {
             throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
         }
         ModelConditions modelConditions = executableElement.getAnnotation(ModelConditions.class);
-        if (modelConditions == null) {
-
-        } else {
+        if (modelConditions != null) {
             whereSqlGen = new ModelWhereSqlGen(executableElement, tableInfo, SqlMode.COMMON, modelConditions);
         }
     }

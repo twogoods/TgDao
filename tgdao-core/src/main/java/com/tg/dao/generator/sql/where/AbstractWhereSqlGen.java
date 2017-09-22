@@ -1,6 +1,7 @@
 package com.tg.dao.generator.sql.where;
 
 import com.tg.dao.annotation.ModelCondition;
+import com.tg.dao.annotation.ModelConditions;
 import com.tg.dao.constant.*;
 import com.tg.dao.generator.sql.where.param.WhereParamSqlGen;
 import com.tg.dao.annotation.Condition;
@@ -23,12 +24,14 @@ public abstract class AbstractWhereSqlGen extends AbstractSqlGen implements Wher
     public AbstractWhereSqlGen(ExecutableElement executableElement, TableMapping tableInfo, SqlMode sqlMode) {
         super(executableElement, tableInfo);
         if (sqlMode == SqlMode.SELECTIVE) {
-            //bugfix 方法直接传一个查询条件即只有一个参数时不能是selective的
-            if (executableElement.getAnnotation(ModelCondition.class) == null &&
+            //bugfix 方法直接传一个基本类型的查询条件(如string,int),即只有一个参数时不能是selective的,而一个类的对象是可以的
+            /* 用户自己添加 @Param 解决，这里不处理
+            if (executableElement.getAnnotation(ModelConditions.class) == null &&
                     executableElement.getParameters().size() == 1) {
                 whereParamSqlGen = new DirectParamSqlGen();
                 return;
             }
+            */
             whereParamSqlGen = new SelectiveParamSqlGen();
         } else {
             whereParamSqlGen = new DirectParamSqlGen();
