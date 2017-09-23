@@ -7,7 +7,7 @@
     <groupId>com.github.twogoods</groupId>
     <artifactId>tgdao</artifactId>
     <packaging>pom</packaging>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
     <modules>
         <module>tgdao-core</module>
         <module>tgdao-example</module>

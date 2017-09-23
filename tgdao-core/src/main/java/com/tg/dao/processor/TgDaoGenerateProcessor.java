@@ -66,7 +66,7 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
                     .filter(typeElement -> typeElement.toString().equals(DAOGENANNOTATIONNAME))
                     .forEach(typeElement -> roundEnv.getElementsAnnotatedWith(typeElement).forEach((this::handleDaoGenElement)));
         } catch (Exception e) {
-            messager.printMessage(Diagnostic.Kind.ERROR, e.toString());
+            messager.printMessage(Diagnostic.Kind.WARNING, e.toString());
         }
         return true;
     }

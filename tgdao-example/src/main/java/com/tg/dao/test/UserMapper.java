@@ -5,6 +5,7 @@ import com.tg.dao.annotation.*;
 import com.tg.dao.constant.Attach;
 import com.tg.dao.constant.Criterions;
 import com.tg.dao.constant.InType;
+import com.tg.dao.constant.SqlMode;
 import com.tg.dao.test.model.User;
 import com.tg.dao.test.model.UserSearch;
 import org.apache.ibatis.annotations.Param;
@@ -30,7 +31,7 @@ public interface UserMapper {
                          @Limit int limit, @OffSet int offset);
 
     //注意这个生成的sql,只有一个param时要加@Param注解
-    @Select(columns = "username,age")
+    @Select(columns = "username,age",sqlMode = SqlMode.COMMON)
     List<User> queryUser1(@Param("age") Integer age);
 
     @Select(columns = "username,age")

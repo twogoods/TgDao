@@ -57,7 +57,7 @@ public interface UserDao {
 <dependency>
   <groupId>com.github.twogoods</groupId>
   <artifactId>tgdao-core</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
 </dependency>
 ```
 ### Table与Model关联
@@ -144,6 +144,30 @@ List<User> queryUser5(UserSearch userSearch);
 * `test`：selective下的判断表达式，即`<if test="username != null">`里的test属性
 
 `@Page`只能用在ModelConditions下的查询，并且方法参数的那个类应该有`offset`，`limit`这两个属性。
+
+**注：**
+
+```
+@Select(columns = "username,age")
+List<User> queryUser(Integer age);
+
+@Select(columns = "username,age")
+List<User> queryUser2param(Integer age, String username);
+
+<select id="queryUser" resultMap="XXX">select username,age from T_User
+    <where>
+      <if test="age != null">AND age = #{age}</if>
+    </where>
+</select>
+
+<select id="queryUser2param" resultMap="XXX">select username,age from T_User
+    <where>
+      <if test="age != null">AND age = #{age}</if>
+      <if test="username != null">AND username = #{username}</if>
+    </where>
+</select>
+```
+两个函数生成的sql如上，`@Select`的属性`SqlMode`默认是`Selective`，所以两个都有<if>条件判断，但是这里第一个函数的sql，Mybatis不支持，执行会报错，类似`no age getter in java.lang.Interger`，Mybatis会把这唯一的一个参数当做对象来取里面的值。解决方法：函数签名里强加`@Param()`注解，或者`@Select`里使用`sqlMode = SqlMode.COMMON`去掉生成sql里的if判断。这个问题只会在方法只有一个参数的情况下发生，第二个函数生成的sql是ok的。
 #### 分页
 查询参数里`@Limit`，`@OffSet`或查询model里`@Page`的分页功能都比较原始，TgDao只是一款SQL生成器而已，因此你可以使用各种插件，或者与其他框架集成。对于分页，可以无缝与[PageHelper](https://github.com/pagehelper/Mybatis-PageHelper)整合。
 
