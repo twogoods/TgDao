@@ -1,4 +1,4 @@
-package com.tg.dao.annotation;
+package com.tg.ext;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,10 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by twogoods on 2017/7/28.
+ * Created by twogoods on 2017/11/2.
  */
-@Target({ElementType.FIELD})
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
-public @interface Id {
-    String value() default "";
+public @interface HelloWorld {
 }

@@ -248,3 +248,7 @@ int delete2(UserSearch userSearch);
 增量编译和`annotation processors` https://issues.gradle.org/browse/GRADLE-3259
 
 how to debug http://blog.jensdriller.com/how-to-debug-a-java-annotation-processor-using-intellij/
+
+修改ast的helloworld：https://gist.github.com/pietrocaselani/8624554
+
+拓展lombok http://notatube.blogspot.hk/2010/12/project-lombok-creating-custom.html

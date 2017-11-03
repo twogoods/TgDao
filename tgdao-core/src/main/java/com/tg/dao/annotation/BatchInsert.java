@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * Created by twogoods on 2017/7/31.
  */
 @Target({ElementType.METHOD})
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.SOURCE)
 public @interface BatchInsert {
     String columns() default "";
 }

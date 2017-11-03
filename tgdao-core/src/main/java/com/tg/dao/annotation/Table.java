@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * Created by twogoods on 2017/7/28.
  */
 @Target({ElementType.TYPE})
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.SOURCE)
 public @interface Table {
     String name();
 }

@@ -33,8 +33,8 @@ import java.util.stream.Collectors;
 @SupportedOptions({"com.tg.dao.annotation.Table", "com.tg.dao.annotation.DaoGen"})
 public class TgDaoGenerateProcessor extends AbstractProcessor {
 
-    public static final String DAOGENANNOTATIONNAME = DaoGen.class.getCanonicalName();
-    public static final String TABLEANNOTATIONNAME = Table.class.getCanonicalName();
+    public static final String DAOGEN_ANNOTATION_NAME = DaoGen.class.getCanonicalName();
+    public static final String TABLE_ANNOTATION_NAME = Table.class.getCanonicalName();
 
     private Map<String, TableMapping> nameModelMapping = new HashMap<>();
 
@@ -55,7 +55,7 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         annotations.stream()
-                .filter(typeElement -> typeElement.toString().equals(TABLEANNOTATIONNAME))
+                .filter(typeElement -> typeElement.toString().equals(TABLE_ANNOTATION_NAME))
                 .forEach(typeElement -> roundEnv.getElementsAnnotatedWith(typeElement).forEach((this::handleTableElement)));
         if (nameModelMapping.size() == 0) {
             messager.printMessage(Diagnostic.Kind.WARNING, "can't find any @Table");
@@ -63,7 +63,7 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
         }
         try {
             annotations.stream()
-                    .filter(typeElement -> typeElement.toString().equals(DAOGENANNOTATIONNAME))
+                    .filter(typeElement -> typeElement.toString().equals(DAOGEN_ANNOTATION_NAME))
                     .forEach(typeElement -> roundEnv.getElementsAnnotatedWith(typeElement).forEach((this::handleDaoGenElement)));
         } catch (Exception e) {
             messager.printMessage(Diagnostic.Kind.WARNING, e.toString());

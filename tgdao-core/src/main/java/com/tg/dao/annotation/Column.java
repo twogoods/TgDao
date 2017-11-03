@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * Created by twogoods on 2017/7/28.
  */
 @Target({ElementType.FIELD})
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.SOURCE)
 public @interface Column {
     String value();
 }

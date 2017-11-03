@@ -6,10 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by twogoods on 2017/7/28.
+ * Created by twogoods on 2017/11/3.
  */
-@Target({ElementType.FIELD})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.SOURCE)
-public @interface Id {
-    String value() default "";
+public @interface Params {
 }

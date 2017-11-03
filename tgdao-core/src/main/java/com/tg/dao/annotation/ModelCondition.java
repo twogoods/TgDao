@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * Created by twogoods on 2017/7/31.
  */
 @Target({ElementType.ANNOTATION_TYPE})
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.SOURCE)
 public @interface ModelCondition {
     Criterions criterion() default Criterions.EQUAL;
 
