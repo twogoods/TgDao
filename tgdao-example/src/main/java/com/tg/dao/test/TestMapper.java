@@ -2,7 +2,6 @@ package com.tg.dao.test;
 
 import com.tg.dao.annotation.Params;
 import com.tg.dao.test.model.User;
-import org.apache.ibatis.annotations.Param;
 
 
 /**
@@ -10,7 +9,5 @@ import org.apache.ibatis.annotations.Param;
  */
 @Params
 public interface TestMapper {
-    Object test(@Param("user") User user);
-
-    int sdbu(User user);
+    int insert(User user);
 }
