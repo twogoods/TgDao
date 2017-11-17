@@ -31,8 +31,12 @@ public interface UserMapper {
                          @Limit int limit, @OffSet int offset);
 
     //注意这个生成的sql,只有一个param时要加@Param注解
-    @Select(columns = "username,age",sqlMode = SqlMode.COMMON)
-    List<User> queryUser1(@Param("age") Integer age);
+    @Select(columns = "username,age", sqlMode = SqlMode.COMMON)
+    List<User> queryUserList(@Condition(criterion = Criterions.IN, column = "id") int[] ids);
+
+    //注意这个生成的sql,只有一个param时要加@Param注解
+    @Select(columns = "username,age", sqlMode = SqlMode.COMMON)
+    List<User> queryUser1(Integer age);
 
     @Select(columns = "username,age")
     List<User> queryUser2param(Integer age, String username);
@@ -74,10 +78,10 @@ public interface UserMapper {
     int insert(User user);
 
     @BatchInsert(columns = "username,age")
-    int batchInsert(List<User> users);
+    int batchInsert(@Param("users") List<User> users);
 
     @BatchInsert()
-    int batchtest(List<User> users);
+    int batchtest(@Param("users")List<User> users);
 
     //update 的where部分不是selective的
     @Update(columns = "username,age")

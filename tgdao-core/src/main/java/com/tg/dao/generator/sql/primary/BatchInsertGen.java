@@ -2,12 +2,14 @@ package com.tg.dao.generator.sql.primary;
 
 import com.tg.dao.annotation.BatchInsert;
 import com.tg.dao.constant.Constants;
+import com.tg.dao.constant.InType;
 import com.tg.dao.exception.TgDaoException;
 import com.tg.dao.generator.model.TableMapping;
 import com.tg.dao.util.StringUtils;
 import org.dom4j.Element;
 
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -68,7 +70,16 @@ public class BatchInsertGen extends PrimarySqlGen {
 
     private void generateEach(Element sqlElement, List<String> columns) {
         Element each = sqlElement.addElement("foreach");
-        each.addAttribute("collection", "collection");
+        if (variableElements.size() != 1) {
+            throw new TgDaoException(String.format("method annotated @BatchInsert should have one paramter ：%s", executableElement.toString()));
+        }
+        VariableElement variableElement = variableElements.get(0);
+        if (commonNameForEach(variableElement)) {
+            String collectionName = variableElement.asType().toString().contains("[]") ? "array" : "collection";
+            each.addAttribute("collection", collectionName);
+        } else {
+            each.addAttribute("collection", variableElement.getSimpleName().toString());
+        }
         each.addAttribute("item", "item");
         each.addAttribute("separator", Constants.separator);
         StringBuilder eachSql = new StringBuilder().append("(");

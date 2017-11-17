@@ -8,6 +8,7 @@ import com.tg.dao.generator.sql.where.param.Param;
 import org.dom4j.Element;
 
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
 
 /**
  * Created by twogoods on 2017/8/2.
@@ -33,15 +34,20 @@ public class ModelWhereSqlGen extends AbstractWhereSqlGen {
     }
 
     private void generateModelWhereParam(Element whereElement, ModelCondition modelCondition) {
+        String field = modelCondition.field();
+        VariableElement variableElement = variableElements.get(0);
+        if (paramAnnotated(variableElement)) {
+            field = variableElement.getSimpleName().toString() + "." + field;
+        }
         if (modelCondition.criterion().inCriterion()) {
-            generateINSuffix(modelCondition, whereElement);
+            generateINSuffix(modelCondition, whereElement, field);
             return;
         }
         Param param = new Param.Builder().whereElement(whereElement)
                 .criterion(modelCondition.criterion())
                 .attach(modelCondition.attach())
                 .column(getColumn(modelCondition.column(), modelCondition.field()))
-                .field(modelCondition.field())
+                .field(field)
                 .test(modelCondition.test())
                 .build();
         whereParamSqlGen.generateWhereParamSql(param);

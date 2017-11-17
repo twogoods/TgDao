@@ -8,6 +8,8 @@ import com.tg.dao.util.StringUtils;
 import org.dom4j.Element;
 
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
+import java.util.Map;
 
 /**
  * Created by twogoods on 2017/7/31.
@@ -43,29 +45,35 @@ public class InsertGen extends PrimarySqlGen {
         selectElement.addText("insert into " + tableInfo.getTableName());
         Element columnElement = generateTrimElement(selectElement, "(", ")", ",");
         Element valuesElement = generateTrimElement(selectElement, "values (", ")", ",");
+
+        VariableElement variableElement = variableElements.get(0);
+        String objName = "";
+        if (paramAnnotated(variableElement)) {
+            objName = variableElement.getSimpleName().toString() + ".";
+        }
         if (StringUtils.isNotEmpty(insert.columns())) {
             for (String column : insert.columns().split(Constants.separator)) {
                 String field = tableInfo.getColumnToField().get(column);
                 if (StringUtils.isNotEmpty(field)) {
                     columnElement.addElement("if")
-                            .addAttribute("test", field + " != null")
+                            .addAttribute("test", objName + field + " != null")
                             .addText(column + Constants.separator);
                     valuesElement.addElement("if")
-                            .addAttribute("test", field + " != null")
+                            .addAttribute("test", objName + field + " != null")
                             .addText("#{" + field + "},");
                 }
             }
             return selectElement;
         }
-        tableInfo.getFieldToColumn().forEach((key, value) -> {
-            columnElement.addElement("if")
-                    .addAttribute("test", key + " != null")
-                    .addText(value + Constants.separator);
-            valuesElement.addElement("if")
-                    .addAttribute("test", key + " != null")
-                    .addText("#{" + key + "},");
 
-        });
+        for (Map.Entry<String, String> entry : tableInfo.getFieldToColumn().entrySet()) {
+            columnElement.addElement("if")
+                    .addAttribute("test", objName + entry.getKey() + " != null")
+                    .addText(entry.getValue() + Constants.separator);
+            valuesElement.addElement("if")
+                    .addAttribute("test", objName + entry.getKey() + " != null")
+                    .addText("#{" + objName + entry.getKey() + "},");
+        }
         return selectElement;
     }
 }

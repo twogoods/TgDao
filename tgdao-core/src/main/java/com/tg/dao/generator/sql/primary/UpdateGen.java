@@ -11,6 +11,8 @@ import com.tg.dao.generator.model.TableMapping;
 import org.dom4j.Element;
 
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
+import java.util.Map;
 
 /**
  * Created by twogoods on 2017/8/1.
@@ -46,17 +48,32 @@ public class UpdateGen extends PrimarySqlGen {
 
     private void generateSet(Element updateElement) {
         Element setElement = updateElement.addElement("set");
+
+
+        VariableElement variableElement = variableElements.get(0);
+        String objName = "";
+        if (paramAnnotated(variableElement)) {
+            objName = variableElement.getSimpleName().toString() + ".";
+        }
+
         if (StringUtils.isNotEmpty(update.columns())) {
             for (String column : update.columns().split(Constants.separator)) {
                 String field = tableInfo.getColumnToField().get(column);
                 if (StringUtils.isNotEmpty(field)) {
                     Element ifElement = setElement.addElement("if");
-                    ifElement.addAttribute("test", field + " != null");
-                    ifElement.addText(column + " = #{" + field + "},");
+                    ifElement.addAttribute("test", objName + field + " != null");
+                    ifElement.addText(column + " = #{" + objName + field + "},");
                 }
             }
             return;
         }
+
+        for (Map.Entry<String, String> entry : tableInfo.getFieldToColumn().entrySet()) {
+            Element ifElement = setElement.addElement("if");
+            ifElement.addAttribute("test", objName + entry.getKey() + " != null");
+            ifElement.addText(entry.getKey() + " = #{" + objName + entry.getKey() + "},");
+        }
+
         tableInfo.getFieldToColumn().forEach((field, column) -> {
             Element ifElement = setElement.addElement("if");
             ifElement.addAttribute("test", field + " != null");
