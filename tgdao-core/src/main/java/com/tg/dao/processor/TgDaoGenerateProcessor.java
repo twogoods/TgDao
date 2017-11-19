@@ -24,9 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author twogoods
- * @version 0.1
- * @since 2017-05-06
+ * Created by twogoods on 2017/7/28.
  */
 @SupportedAnnotationTypes({"com.tg.dao.annotation.Table", "com.tg.dao.annotation.DaoGen"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -37,18 +35,11 @@ public class TgDaoGenerateProcessor extends AbstractProcessor {
     public static final String TABLE_ANNOTATION_NAME = Table.class.getCanonicalName();
 
     private Map<String, TableMapping> nameModelMapping = new HashMap<>();
-
-    private Types typeUtils;
-    private Elements elementUtils;
-    private Filer filer;
     private Messager messager;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        typeUtils = processingEnv.getTypeUtils();
-        elementUtils = processingEnv.getElementUtils();
-        filer = processingEnv.getFiler();
         messager = processingEnv.getMessager();
     }
 
