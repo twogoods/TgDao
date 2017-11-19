@@ -36,7 +36,7 @@ public class ModelWhereSqlGen extends AbstractWhereSqlGen {
     private void generateModelWhereParam(Element whereElement, ModelCondition modelCondition) {
         String field = modelCondition.field();
         VariableElement variableElement = variableElements.get(0);
-        if (paramAnnotated(variableElement)) {
+        if (paramsAnnotated(variableElement)) {
             field = variableElement.getSimpleName().toString() + "." + field;
         }
         if (modelCondition.criterion().inCriterion()) {

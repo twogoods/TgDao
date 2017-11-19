@@ -21,7 +21,7 @@ public class ModelSuffixGen extends AbstractSuffixSqlGen {
         VariableElement variableElement = variableElements.get(0);
         String offset = page.offsetField();
         String limit = page.limitField();
-        if (paramAnnotated(variableElement)) {
+        if (paramsAnnotated(variableElement)) {
             offset = variableElement.getSimpleName().toString() + "." + offset;
             limit = variableElement.getSimpleName().toString() + "." + limit;
         }

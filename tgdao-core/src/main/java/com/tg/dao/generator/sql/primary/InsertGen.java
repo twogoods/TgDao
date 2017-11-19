@@ -48,7 +48,7 @@ public class InsertGen extends PrimarySqlGen {
 
         VariableElement variableElement = variableElements.get(0);
         String objName = "";
-        if (paramAnnotated(variableElement)) {
+        if (paramsAnnotated(variableElement)) {
             objName = variableElement.getSimpleName().toString() + ".";
         }
         if (StringUtils.isNotEmpty(insert.columns())) {

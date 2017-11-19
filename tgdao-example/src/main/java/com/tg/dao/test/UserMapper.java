@@ -23,6 +23,7 @@ import java.util.List;
  * select where 里全是selective的
  */
 @DaoGen(model = User.class, fileName = "UserTestMapper.xml")
+@Params
 public interface UserMapper {
     @Select(columns = "username,age")
     @OrderBy("id desc")
@@ -78,10 +79,10 @@ public interface UserMapper {
     int insert(User user);
 
     @BatchInsert(columns = "username,age")
-    int batchInsert(@Param("users") List<User> users);
+    int batchInsert(List<User> users);
 
     @BatchInsert()
-    int batchtest(@Param("users")List<User> users);
+    int batchtest(List<User> users);
 
     //update 的where部分不是selective的
     @Update(columns = "username,age")

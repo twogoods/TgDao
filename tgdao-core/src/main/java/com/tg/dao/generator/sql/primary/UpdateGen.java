@@ -52,7 +52,7 @@ public class UpdateGen extends PrimarySqlGen {
 
         VariableElement variableElement = variableElements.get(0);
         String objName = "";
-        if (paramAnnotated(variableElement)) {
+        if (paramsAnnotated(variableElement)) {
             objName = variableElement.getSimpleName().toString() + ".";
         }
 

@@ -48,9 +48,9 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${java.encoding}</encoding>
-                    <compilerArgs>
-                        <arg>-parameters</arg>
-                    </compilerArgs>
+                    <!--<compilerArgs>-->
+                        <!--<arg>-parameters</arg>-->
+                    <!--</compilerArgs>-->
                 </configuration>
             </plugin>
         </plugins>

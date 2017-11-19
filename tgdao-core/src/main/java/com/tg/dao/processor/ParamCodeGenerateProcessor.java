@@ -70,7 +70,10 @@ public class ParamCodeGenerateProcessor extends AbstractProcessor {
 
     private void handleTypeElement(Element element) {
         if ((element.getKind() == ElementKind.METHOD)) {
-            messager.printMessage(Diagnostic.Kind.WARNING, "get method");
+            Symbol.MethodSymbol methodSymbol = (Symbol.MethodSymbol) element;
+            if (methodSymbol.getEnclosingElement().getAnnotation(Params.class) != null) {
+                return;
+            }
             JCTree.JCMethodDecl jcMethodDecl = (JCTree.JCMethodDecl) trees.getTree(element);
             handleMethod(jcMethodDecl);
             return;
