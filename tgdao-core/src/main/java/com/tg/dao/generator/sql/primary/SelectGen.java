@@ -29,9 +29,7 @@ public class SelectGen extends PrimarySqlGen {
     protected void checkAnnotatedRule() {
         ModelConditions modelConditions = executableElement.getAnnotation(ModelConditions.class);
         if (modelConditions != null) {
-            if (executableElement.getParameters().size() != 1) {
-                throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
-            }
+            checkOneParam();
             whereSqlGen = new ModelWhereSqlGen(executableElement, tableInfo, select.sqlMode(), modelConditions);
             suffixSqlGen = new ModelSuffixGen(executableElement, tableInfo);
             return;

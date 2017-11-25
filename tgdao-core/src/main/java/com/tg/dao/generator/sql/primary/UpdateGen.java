@@ -3,7 +3,6 @@ package com.tg.dao.generator.sql.primary;
 import com.tg.dao.annotation.ModelConditions;
 import com.tg.dao.annotation.Update;
 import com.tg.dao.constant.Constants;
-import com.tg.dao.constant.SqlMode;
 import com.tg.dao.exception.TgDaoException;
 import com.tg.dao.generator.sql.where.ModelWhereSqlGen;
 import com.tg.dao.util.StringUtils;
@@ -18,6 +17,7 @@ import java.util.Map;
  * Created by twogoods on 2017/8/1.
  */
 public class UpdateGen extends PrimarySqlGen {
+    //TODO update where 中selective的问题
     private Update update;
 
     public UpdateGen(ExecutableElement executableElement, TableMapping tableInfo, Update update) {
@@ -33,7 +33,7 @@ public class UpdateGen extends PrimarySqlGen {
         }
         ModelConditions modelConditions = executableElement.getAnnotation(ModelConditions.class);
         if (modelConditions != null) {
-            whereSqlGen = new ModelWhereSqlGen(executableElement, tableInfo, SqlMode.COMMON, modelConditions);
+            whereSqlGen = new ModelWhereSqlGen(executableElement, tableInfo, update.sqlMode(), modelConditions);
         }
     }
 
@@ -48,14 +48,11 @@ public class UpdateGen extends PrimarySqlGen {
 
     private void generateSet(Element updateElement) {
         Element setElement = updateElement.addElement("set");
-
-
         VariableElement variableElement = variableElements.get(0);
         String objName = "";
         if (paramsAnnotated(variableElement)) {
             objName = variableElement.getSimpleName().toString() + ".";
         }
-
         if (StringUtils.isNotEmpty(update.columns())) {
             for (String column : update.columns().split(Constants.separator)) {
                 String field = tableInfo.getColumnToField().get(column);
@@ -67,13 +64,11 @@ public class UpdateGen extends PrimarySqlGen {
             }
             return;
         }
-
         for (Map.Entry<String, String> entry : tableInfo.getFieldToColumn().entrySet()) {
             Element ifElement = setElement.addElement("if");
             ifElement.addAttribute("test", objName + entry.getKey() + " != null");
             ifElement.addText(entry.getKey() + " = #{" + objName + entry.getKey() + "},");
         }
-
         tableInfo.getFieldToColumn().forEach((field, column) -> {
             Element ifElement = setElement.addElement("if");
             ifElement.addAttribute("test", field + " != null");

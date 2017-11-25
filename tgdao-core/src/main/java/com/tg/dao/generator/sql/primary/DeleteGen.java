@@ -26,13 +26,11 @@ public class DeleteGen extends PrimarySqlGen {
     protected void checkAnnotatedRule() {
         ModelConditions modelConditions = executableElement.getAnnotation(ModelConditions.class);
         if (modelConditions != null) {
-            if (executableElement.getParameters().size() != 1) {
-                throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
-            }
-            whereSqlGen = new ModelWhereSqlGen(executableElement, tableInfo, SqlMode.COMMON, modelConditions);
+            checkOneParam();
+            whereSqlGen = new ModelWhereSqlGen(executableElement, tableInfo, delete.sqlMode(), modelConditions);
             return;
         }
-        whereSqlGen = new FlatParamWhereSqlGen(executableElement, tableInfo, SqlMode.COMMON);
+        whereSqlGen = new FlatParamWhereSqlGen(executableElement, tableInfo, delete.sqlMode());
     }
 
     @Override

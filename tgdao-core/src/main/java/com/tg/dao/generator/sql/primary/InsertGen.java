@@ -24,9 +24,7 @@ public class InsertGen extends PrimarySqlGen {
 
     @Override
     public void checkAnnotatedRule() {
-        if (executableElement.getParameters().size() != 1) {
-            throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
-        }
+        checkOneParam();
         if (!tableInfo.getClassName().equals(executableElement.getParameters().get(0).asType().toString())) {
             throw new TgDaoException(String.format("insert param need '%s' but get '%s'", tableInfo.getClassName(),
                     executableElement.getParameters().get(0).asType().toString()));

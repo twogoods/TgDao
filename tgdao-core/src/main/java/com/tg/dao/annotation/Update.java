@@ -1,5 +1,7 @@
 package com.tg.dao.annotation;
 
+import com.tg.dao.constant.SqlMode;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -12,4 +14,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 public @interface Update {
     String columns() default "";
+
+    SqlMode sqlMode() default SqlMode.SELECTIVE;
 }

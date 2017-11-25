@@ -3,6 +3,7 @@ package com.tg.dao.generator.sql;
 import com.tg.dao.annotation.Limit;
 import com.tg.dao.annotation.OffSet;
 import com.tg.dao.annotation.Params;
+import com.tg.dao.exception.TgDaoException;
 import com.tg.dao.generator.model.TableMapping;
 import com.tg.dao.util.StringUtils;
 import org.dom4j.Element;
@@ -25,6 +26,11 @@ public abstract class AbstractSqlGen {
         this.variableElements = executableElement.getParameters();
     }
 
+    protected void checkOneParam(){
+        if (executableElement.getParameters().size() != 1) {
+            throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
+        }
+    }
 
     protected boolean paramsAnnotated(VariableElement variableElement) {
         if (variableElement == null) {

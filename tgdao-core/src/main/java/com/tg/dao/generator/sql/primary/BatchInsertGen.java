@@ -27,10 +27,7 @@ public class BatchInsertGen extends PrimarySqlGen {
 
     @Override
     protected void checkAnnotatedRule() {
-        if (executableElement.getParameters().size() != 1) {
-            throw new TgDaoException(String.format("check method %s , support only one parameter",
-                    executableElement.getSimpleName().toString()));
-        }
+        checkOneParam();
         if (!executableElement.getParameters().get(0).asType().toString().contains(tableInfo.getClassName())) {
             throw new TgDaoException(String.format("insert param need '%s' but get '%s'", tableInfo.getClassName(),
                     executableElement.getParameters().get(0).asType().toString()));

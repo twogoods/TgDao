@@ -1,5 +1,7 @@
 ## 介绍
-TgDao是一款基于Mybatis的编译期SQL生成器，利用注解来表达SQL，能根据你的方法签名生成对应的Mapper.xml文件。它能减少你日常开发中大量简单SQL的编写，由于它只是生成Mapper.xml文件，因此对于复杂的查询场景，你同样可以自己编写来完成一些工具所无法生成的SQL。
+TgDao是一款基于Mybatis的编译期SQL生成器，利用注解来表达SQL，能根据你的方法签名生成对应的Mapper.xml文件。
+它能减少你日常开发中大量简单SQL的编写，由于它只是生成Mapper.xml文件，因此对于复杂的查询场景，
+你同样可以自己编写来完成一些工具所无法生成的SQL。
 
 ```
 @Table(name = "T_User")
@@ -102,7 +104,8 @@ List<User> queryUser(@Condition(criterion = Criterions.EQUAL, column = "username
 ```
 ##### @Select
 * `columns`:默认 `select *`可以配置`columns("username,age")`选择部分字段；
-* `SqlMode`:有两个选择，SqlMode.SELECTIVE 和 SqlMode.COMMON，区别是selective会检查查询条件的字段是否为null来实现动态的查询,即`<if test="name != null">username = #{name}</if>`
+* `SqlMode`:有两个选择，SqlMode.SELECTIVE 和 SqlMode.COMMON，区别是selective会检查查询条件的字段是否为null来实现动态的查询,
+即`<if test="name != null">username = #{name}</if>`
 
 关于selective: 出于mysql字段不为null这个基础,insert的字段是selective的；update set 语句是selective的而where里不是selective的；delete的where里不是selective的；select where 里可选。
 ##### @Condition
@@ -167,9 +170,13 @@ List<User> queryUser2param(Integer age, String username);
     </where>
 </select>
 ```
-两个函数生成的sql如上，`@Select`的属性`SqlMode`默认是`Selective`，所以两个都有<if>条件判断，但是这里第一个函数的sql，Mybatis不支持，执行会报错，类似`no age getter in java.lang.Interger`，Mybatis会把这唯一的一个参数当做对象来取里面的值。解决方法：函数签名里强加`@Param()`注解，或者`@Select`里使用`sqlMode = SqlMode.COMMON`去掉生成sql里的if判断。这个问题只会在方法只有一个参数的情况下发生，第二个函数生成的sql是ok的。
+两个函数生成的sql如上，`@Select`的属性`SqlMode`默认是`Selective`，所以两个都有<if>条件判断，但是这里第一个函数的sql，
+Mybatis不支持，执行会报错，类似`no age getter in java.lang.Interger`，Mybatis会把这唯一的一个参数当做对象来取里面的值。
+解决方法：函数签名里强加`@Param()`注解，或者`@Select`里使用`sqlMode = SqlMode.COMMON`去掉生成sql里的if判断。
+这个问题只会在方法只有一个参数的情况下发生，第二个函数生成的sql是ok的。
 #### 分页
-查询参数里`@Limit`，`@OffSet`或查询model里`@Page`的分页功能都比较原始，TgDao只是一款SQL生成器而已，因此你可以使用各种插件，或者与其他框架集成。对于分页，可以无缝与[PageHelper](https://github.com/pagehelper/Mybatis-PageHelper)整合。
+查询参数里`@Limit`，`@OffSet`或查询model里`@Page`的分页功能都比较原始，TgDao只是一款SQL生成器而已，因此你可以使用各种插件，
+或者与其他框架集成。对于分页，可以无缝与[PageHelper](https://github.com/pagehelper/Mybatis-PageHelper)整合。
 
 ```
 @Select
@@ -222,14 +229,31 @@ int delete(@Condition(criterion = Criterions.GREATER, column = "age") int min,
 })
 int delete2(UserSearch userSearch);
 ```
+### @Params
+在介绍这个注解时要先介绍一下Mybatis自己的`@Param`注解，`@Param`注解在方法的参数上，给参数定义了一个名字，
+这样可以在xml的sql里使用这个名字来取得参数所对应的值。如下：
+```
+    List<User> queryUser(@Param("name") String name);
+    
+    <select id="queryUser">select * from T_User where username=#{name} </select>
+```
+明明参数就叫name,为什么还要`@Param`注解一个名字name呢？这是因为Java编译完，会丢掉参数名，以至于运行期mybatis不知道这个参数叫什么，
+所以需要注解一个名字。但是在Java8里我们已经可以在编译完保留参数信息了，我们徐璈
+
+
+
 更多请看[example](https://github.com/twogoods/TgDao/tree/master/example)
 
 ---
 ## 说明
 * 编译生成的XML文件与Mapper接口在同一个包下
 * 只支持Java8和MySql
-* 修改了源代码中方法的定义或者model里和数据表的映射关系，发现编译出来的xml却没有改变，这是增量编译的原因。你修改了一部分代码，还有一部分未修改的代码编译器就不做处理，这样无法得到这部分信息，所以TgDao无法生成最新版本的xml。解决方法是每次`mvn clean compile`先清除一下编译目录，更好的方案正在寻找...
-* Mybatis里我们经常会用到`@Param`来告诉Mybatis参数的名称，这是因为Java编译后的字节码把方法的参数信息给抹去了，在Java8中可以通过给javac 添加`-parameters`参数来保留参数名字信息，这样mybatis会利用这个信息，这样就不需要加`@Param`注解了。TgDao利用了这个特性，所以请加上`-parameters`配置，各种构建工具都可以配置这个选项，贴出Maven的配置:
+* 修改了源代码中方法的定义或者model里和数据表的映射关系，发现编译出来的xml却没有改变，这是增量编译的原因。
+你修改了一部分代码，还有一部分未修改的代码编译器就不做处理，这样无法得到这部分信息，所以TgDao无法生成最新版本的xml。
+解决方法是每次`mvn clean compile`先清除一下编译目录，更好的方案正在寻找...
+* Mybatis里我们经常会用到`@Param`来告诉Mybatis参数的名称，这是因为Java编译后的字节码把方法的参数信息给抹去了，
+在Java8中可以通过给javac 添加`-parameters`参数来保留参数名字信息，这样mybatis会利用这个信息，这样就不需要加`@Param`注解了。
+TgDao利用了这个特性，所以请加上`-parameters`配置，各种构建工具都可以配置这个选项，贴出Maven的配置:
 
 ```
   <plugin>

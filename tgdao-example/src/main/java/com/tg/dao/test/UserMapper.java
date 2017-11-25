@@ -18,7 +18,7 @@ import java.util.List;
  * <p>
  * 关于selective,出于mysql字段不为null
  * insert 全是selective的
- * update set 是selective的,where里不是selective的
+ * update set 是selective的
  * delete where里不是selective的
  * select where 里全是selective的
  */

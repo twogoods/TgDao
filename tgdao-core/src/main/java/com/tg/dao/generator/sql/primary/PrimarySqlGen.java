@@ -1,5 +1,6 @@
 package com.tg.dao.generator.sql.primary;
 
+import com.tg.dao.exception.TgDaoException;
 import com.tg.dao.generator.sql.AbstractSqlGen;
 import com.tg.dao.generator.sql.SqlGen;
 import com.tg.dao.generator.sql.suffix.SuffixSqlGen;
