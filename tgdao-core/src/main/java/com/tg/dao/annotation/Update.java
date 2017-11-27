@@ -15,5 +15,5 @@ import java.lang.annotation.Target;
 public @interface Update {
     String columns() default "";
 
-    SqlMode sqlMode() default SqlMode.SELECTIVE;
+    SqlMode sqlMode() default SqlMode.COMMON;
 }

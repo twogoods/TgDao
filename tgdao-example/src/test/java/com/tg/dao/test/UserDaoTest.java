@@ -140,7 +140,7 @@ public class UserDaoTest {
     @Test
     public void testUpdate() throws Exception {
         User user = new User();
-        user.setId(8);
+        user.setId(8L);
         user.setPassword("123");
         user.setAge(23);
         user.setOldAddress("上海");

@@ -13,5 +13,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.SOURCE)
 public @interface Delete {
-    SqlMode sqlMode() default SqlMode.SELECTIVE;
+    SqlMode sqlMode() default SqlMode.COMMON;
 }

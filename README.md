@@ -107,7 +107,6 @@ List<User> queryUser(@Condition(criterion = Criterions.EQUAL, column = "username
 * `SqlMode`:有两个选择，SqlMode.SELECTIVE 和 SqlMode.COMMON，区别是selective会检查查询条件的字段是否为null来实现动态的查询,
 即`<if test="name != null">username = #{name}</if>`
 
-关于selective: 出于mysql字段不为null这个基础,insert的字段是selective的；update set 语句是selective的而where里不是selective的；delete的where里不是selective的；select where 里可选。
 ##### @Condition
 * `criterion`：查询条件，`=`,`<`,`>`,`in`等，具体见`Criterions`
 * `column`：与表字段的对应，若与字段名相同可不配置
@@ -229,6 +228,30 @@ int delete(@Condition(criterion = Criterions.GREATER, column = "age") int min,
 })
 int delete2(UserSearch userSearch);
 ```
+### selective
+`@Select`，`@Count`，`@Update`，`@Delete`都有`selective`这个属性，这个属性有两个值，分别是`SqlMode.COMMON`和`SqlMode.SELECTIVE`。
+它们的区别在下面这段生成的xm里显示的很清楚，`SqlMode.SELECTIVE`引入了Mybatis的动态SQL能力。
+```
+  <!-- SELECTIVE -->
+  <select id="queryUser" resultMap="BaseResultMap">select username,age from T_User 
+    <where>
+      <if test="name!=null and name!=''">AND username = #{name}</if>
+      <if test="age != null">OR age = #{age}</if>
+    </where>
+  </select>
+  
+  <!-- COMMON -->
+  <select id="queryUser" resultMap="BaseResultMap">select username,age from T_User 
+    <where>
+      AND username = #{name} OR age = #{age}
+    </where>
+  </select>
+```
+
+`@Select`，`@Count`默认的selective属性是`SqlMode.SELECTIVE`，这样查询语句可以充分利用Mybatis的动态SQL能力。
+而`@Update`，`@Delete`默认是`SqlMode.COMMON`，这样做的原因是：selective模式下如果参数全是`null`会使得where语句里没有任何条件，
+最终变成全表的更新和删除，这是一个极其危险的动作。所以`@Update`，`@Delete`慎用`SqlMode.SELECTIVE`模式。
+
 ### @Params
 在介绍这个注解时要先介绍一下Mybatis自己的`@Param`注解，`@Param`注解在方法的参数上，给参数定义了一个名字，
 这样可以在xml的sql里使用这个名字来取得参数所对应的值。如下：
@@ -237,24 +260,10 @@ int delete2(UserSearch userSearch);
     
     <select id="queryUser">select * from T_User where username=#{name} </select>
 ```
-明明参数就叫name,为什么还要`@Param`注解一个名字name呢？这是因为Java编译完，会丢掉参数名，以至于运行期mybatis不知道这个参数叫什么，
-所以需要注解一个名字。但是在Java8里我们已经可以在编译完保留参数信息了，我们徐璈
-
-
-
-更多请看[example](https://github.com/twogoods/TgDao/tree/master/example)
-
----
-## 说明
-* 编译生成的XML文件与Mapper接口在同一个包下
-* 只支持Java8和MySql
-* 修改了源代码中方法的定义或者model里和数据表的映射关系，发现编译出来的xml却没有改变，这是增量编译的原因。
-你修改了一部分代码，还有一部分未修改的代码编译器就不做处理，这样无法得到这部分信息，所以TgDao无法生成最新版本的xml。
-解决方法是每次`mvn clean compile`先清除一下编译目录，更好的方案正在寻找...
-* Mybatis里我们经常会用到`@Param`来告诉Mybatis参数的名称，这是因为Java编译后的字节码把方法的参数信息给抹去了，
-在Java8中可以通过给javac 添加`-parameters`参数来保留参数名字信息，这样mybatis会利用这个信息，这样就不需要加`@Param`注解了。
-TgDao利用了这个特性，所以请加上`-parameters`配置，各种构建工具都可以配置这个选项，贴出Maven的配置:
-
+明明参数就叫name,为什么还要`@Param`注解一个名字name呢？这是因为Java编译完，会丢掉参数名，以至于运行期mybatis不知道这个参数叫什么，所以需要注解一个名字。
+在运行时看到mybatis报错如：`Parameter 'XXX' not found. Available parameters are...` 这就是没有这个注解导致的问题。
+但是在Java8里我们已经可以通过给javac 添加`-parameters`参数来保留参数名字信息，这样mybatis会利用这个信息，这样就不需要加`@Param`注解了。
+maven可以通过如下方式设置：
 ```
   <plugin>
       <groupId>org.apache.maven.plugins</groupId>
@@ -267,7 +276,28 @@ TgDao利用了这个特性，所以请加上`-parameters`配置，各种构建�
       </configuration>
   </plugin>
 ```
-如果在运行时看到mybatis报错如：`Parameter 'XXX' not found. Available parameters are...` 你也可以手动加上`@Param`注解
+然而有一种情况`-parameters`也无能为力，`List<User> queryUser4(List ids);`当参数是collection或者数组类型时，mybatis依旧无法认出`ids`这个参数，只认`collection`和`array`。
+而`@Params`注解是Mybatis自身注解`@Param`和`-parameters`外的另外一种解决方案。`@Params`可以注解在类和方法上，
+被它注解的类和方法会在编译期自动给所有方法参数加上`@Param`注解，它借鉴了lombok的方式在编译期修改抽象语法树从而改变字节码文件。
+```
+    @Select(columns = "username,age")
+    @Params
+    List<User> queryUser(Integer age, String username);
+    
+    //编译后
+    List<User> queryUser(@Param("age") Integer var1, @Param("username") String var2);
+```
+
+更多请看[example](https://github.com/twogoods/TgDao/tree/master/example)
+
+---
+## 说明
+* 编译生成的XML文件与Mapper接口在同一个包下
+* 只支持Java8和MySql
+* 修改了源代码中方法的定义或者model里和数据表的映射关系，发现编译出来的xml却没有改变，这是增量编译的原因。
+你修改了一部分代码，还有一部分未修改的代码编译器就不做处理，这样无法得到这部分信息，所以TgDao无法生成最新版本的xml。
+解决方法是每次`mvn clean compile`先清除一下编译目录，更好的方案正在寻找...
+
 ### 资料
 增量编译和`annotation processors` https://issues.gradle.org/browse/GRADLE-3259
 
