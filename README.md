@@ -59,7 +59,7 @@ public interface UserDao {
 <dependency>
   <groupId>com.github.twogoods</groupId>
   <artifactId>tgdao-core</artifactId>
-  <version>0.1.2</version>
+  <version>0.1.3</version>
 </dependency>
 ```
 ### Table与Model关联
@@ -230,7 +230,7 @@ int delete2(UserSearch userSearch);
 ```
 ### selective
 `@Select`，`@Count`，`@Update`，`@Delete`都有`selective`这个属性，这个属性有两个值，分别是`SqlMode.COMMON`和`SqlMode.SELECTIVE`。
-它们的区别在下面这段生成的xm里显示的很清楚，`SqlMode.SELECTIVE`引入了Mybatis的动态SQL能力。
+它们的区别在下面这段生成的xml里显示的很清楚，`SqlMode.SELECTIVE`引入了Mybatis的动态SQL能力。
 ```
   <!-- SELECTIVE -->
   <select id="queryUser" resultMap="BaseResultMap">select username,age from T_User 
@@ -278,7 +278,7 @@ maven可以通过如下方式设置：
 ```
 然而有一种情况`-parameters`也无能为力，`List<User> queryUser4(List ids);`当参数是collection或者数组类型时，mybatis依旧无法认出`ids`这个参数，只认`collection`和`array`。
 而`@Params`注解是Mybatis自身注解`@Param`和`-parameters`外的另外一种解决方案。`@Params`可以注解在类和方法上，
-被它注解的类和方法会在编译期自动给所有方法参数加上`@Param`注解，它借鉴了lombok的方式在编译期修改抽象语法树从而改变字节码文件。
+被它注解的类和方法会在编译期自动给所有方法参数加上`@Param`注解，它借鉴了lombok的方式在编译期修改抽象语法树从而改变编译生成的字节码文件。
 ```
     @Select(columns = "username,age")
     @Params
@@ -294,8 +294,8 @@ maven可以通过如下方式设置：
 ## 说明
 * 编译生成的XML文件与Mapper接口在同一个包下
 * 只支持Java8和MySql
-* 修改了源代码中方法的定义或者model里和数据表的映射关系，发现编译出来的xml却没有改变，这是增量编译的原因。
-你修改了一部分代码，还有一部分未修改的代码编译器就不做处理，这样无法得到这部分信息，所以TgDao无法生成最新版本的xml。
+* 修改了源代码中方法的定义或者model里和数据表的映射关系，发现编译出来的xml却没有改变，这是增量编译的原因。生成一个xml同时需要model和mapper interface两个部分，
+如果你只修改了其中一个的代码，那么另一个未修改的代码编译器就不做处理，这样这一次编译就无法得到全部的信息，所以TgDao无法生成最新版本的xml。
 解决方法是每次`mvn clean compile`先清除一下编译目录，更好的方案正在寻找...
 
 ### 资料
