@@ -18,14 +18,14 @@ public class ModelSuffixGen extends AbstractSuffixSqlGen {
     @Override
     public void generatePage(Element sqlElement) {
         Page page = executableElement.getAnnotation(Page.class);
-        VariableElement variableElement = variableElements.get(0);
-        String offset = page.offsetField();
-        String limit = page.limitField();
-        if (paramsAnnotated(variableElement)) {
-            offset = variableElement.getSimpleName().toString() + "." + offset;
-            limit = variableElement.getSimpleName().toString() + "." + limit;
-        }
         if (page != null) {
+            VariableElement variableElement = variableElements.get(0);
+            String offset = page.offsetField();
+            String limit = page.limitField();
+            if (paramsAnnotated(variableElement)) {
+                offset = variableElement.getSimpleName().toString() + "." + offset;
+                limit = variableElement.getSimpleName().toString() + "." + limit;
+            }
             sqlElement.addText(String.format(" limit #{ %s }, #{ %s }", offset, limit));
         }
     }

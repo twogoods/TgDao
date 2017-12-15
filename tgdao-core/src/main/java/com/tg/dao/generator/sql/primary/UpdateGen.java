@@ -20,7 +20,6 @@ import java.util.Set;
  * Created by twogoods on 2017/8/1.
  */
 public class UpdateGen extends PrimarySqlGen {
-    //TODO update where 中selective的问题
     private Update update;
     private ModelConditions modelConditions;
 
@@ -31,7 +30,6 @@ public class UpdateGen extends PrimarySqlGen {
 
     @Override
     protected void checkAnnotatedRule() {
-        //TODO 多参数问题
         if (executableElement.getParameters().size() != 1) {
             throw new TgDaoException(String.format("check method %s , support only one parameter", executableElement.getSimpleName().toString()));
         }
