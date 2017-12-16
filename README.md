@@ -59,7 +59,7 @@ public interface UserDao {
 <dependency>
   <groupId>com.github.twogoods</groupId>
   <artifactId>tgdao-core</artifactId>
-  <version>0.1.3</version>
+  <version>0.1.5</version>
 </dependency>
 ```
 ### Table与Model关联
